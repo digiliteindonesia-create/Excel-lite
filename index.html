@@ -54,12 +54,71 @@
     .sidebar-item.telegram-btn.is-locked { filter: blur(4px); pointer-events: none; opacity: 0.6; }
     .sidebar-item.logout-btn { margin-top: 10px; background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; display: none; }
 
-    /* Main Content & Lock Teaser */
+    /* Main Content & Lock Teaser Overlay */
     .main-content-wrapper { position: relative; }
     .main-content { display: flex; flex-direction: column; gap: 24px; transition: filter 0.3s ease; }
-    .main-content.is-locked { filter: blur(6px) grayscale(20%); pointer-events: none; user-select: none; }
-    .lock-overlay-banner { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; justify-content: center; padding-top: 150px; background: rgba(248,250,252,0.2); }
-    .lock-badge { background: rgba(15,23,42,0.85); color: #fff; padding: 14px 28px; border-radius: 50px; font-weight: 700; backdrop-filter: blur(8px); display: flex; gap: 12px; align-items: center; border: 1px solid rgba(255,255,255,0.2); }
+    .main-content.is-locked { filter: blur(6px) grayscale(15%); pointer-events: none; user-select: none; }
+    
+    /* BANNER LOCK DENGAN LOGO EXCELLITE & GRADASI HIJAU PUTIH */
+    .lock-overlay-banner { 
+      position: absolute; 
+      top: 0; left: 0; right: 0; bottom: 0; 
+      z-index: 10; 
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      justify-content: center;
+      padding: 40px 20px; 
+      /* Background Gradasi Putih - Hijau Segar */
+      background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(236,253,245,0.88) 50%, rgba(16,185,129,0.25) 100%);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      border: 1px solid rgba(16,185,129,0.2);
+      box-shadow: inset 0 0 50px rgba(16,185,129,0.05);
+    }
+
+    .logged-out-logo-container {
+      text-align: center;
+      margin-bottom: 24px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .logged-out-logo-container img {
+      max-width: 320px;
+      width: 80%;
+      height: auto;
+      filter: drop-shadow(0 10px 20px rgba(16, 185, 129, 0.2));
+      transition: transform 0.3s ease;
+    }
+
+    .logged-out-logo-container img:hover {
+      transform: scale(1.03);
+    }
+
+    .lock-badge { 
+      background: rgba(15,23,42,0.92); 
+      color: #fff; 
+      padding: 14px 32px; 
+      border-radius: 50px; 
+      font-weight: 700; 
+      font-size: 1rem;
+      backdrop-filter: blur(8px); 
+      display: flex; 
+      gap: 12px; 
+      align-items: center; 
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     /* Header & Controls */
     .progress-container, .controls-wrapper { background: #fff; padding: 16px 24px; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -192,8 +251,15 @@
 
       <!-- KONTEN UTAMA -->
       <div class="main-content-wrapper">
+        
+        <!-- BANNER LOGOUT DENGAN LOGO & GRADASI HIJAU PUTIH -->
         <div class="lock-overlay-banner" id="lockBanner">
-          <div class="lock-badge"><i class="fas fa-lock"></i> Silakan Login di Panel Kanan untuk Membuka Akses Full</div>
+          <div class="logged-out-logo-container">
+            <img src="excellite.png" alt="ExcelLite Big Logo" onerror="this.style.display='none'">
+          </div>
+          <div class="lock-badge">
+            <i class="fas fa-lock" style="color: #10b981;"></i> Silakan Login di Panel Kanan untuk Membuka Akses Full
+          </div>
         </div>
 
         <main class="main-content is-locked" id="mainContent">
@@ -300,7 +366,6 @@
 
   // DATA 100 SHORTCUT EXCEL
   const shortcutsData = [
-    // 1. Navigasi & Seleksi
     { category: "Navigasi & Seleksi", name: "Pindah ke Ujung Data", key: "Ctrl + Panah (▲/▼/◄/►)", desc: "Pindah langsung ke sel paling ujung/terakhir yang berisi data." },
     { category: "Navigasi & Seleksi", name: "Blok Sampai Ujung Data", key: "Ctrl + Shift + Panah", desc: "Memblok/menyeleksi data sampai sel paling ujung." },
     { category: "Navigasi & Seleksi", name: "Pindah ke Sel Pertama", key: "Ctrl + Home", desc: "Pindah ke sel paling pertama di lembar kerja (A1)." },
@@ -312,7 +377,6 @@
     { category: "Navigasi & Seleksi", name: "Scroll Kanan / Kiri", key: "Alt + Page Down / Page Up", desc: "Pindah tampilan ke kanan atau ke kiri satu layar." },
     { category: "Navigasi & Seleksi", name: "Pindah Lembar Kerja (Sheet)", key: "Ctrl + Page Down / Page Up", desc: "Pindah ke Sheet berikutnya atau sebelumnya." },
 
-    // 2. Edit & Input Data
     { category: "Edit & Input Data", name: "Edit Sel Aktif", key: "F2", desc: "Mengedit sel yang sedang dipilih secara langsung." },
     { category: "Edit & Input Data", name: "Simpan & Geser Bawah", key: "Enter", desc: "Menyimpan isian dan pindah ke sel bawah." },
     { category: "Edit & Input Data", name: "Simpan & Geser Kanan", key: "Tab", desc: "Menyimpan isian dan pindah ke sel sebelah kanan." },
@@ -330,7 +394,6 @@
     { category: "Edit & Input Data", name: "Sisipkan Hyperlink", key: "Ctrl + K", desc: "Menyisipkan tautan/link web atau dokumen." },
     { category: "Edit & Input Data", name: "Batal / Batal Edit", key: "Esc", desc: "Membatalkan pengisian sel atau keluar dari mode edit." },
 
-    // 3. Operasi Baris, Kolom & Tabel
     { category: "Baris, Kolom & Tabel", name: "Tambah Baris / Kolom", key: "Ctrl + Shift + +", desc: "Menyisipkan baris atau kolom baru." },
     { category: "Baris, Kolom & Tabel", name: "Hapus Baris / Kolom", key: "Ctrl + - (Minus)", desc: "Menghapus baris atau kolom yang dipilih." },
     { category: "Baris, Kolom & Tabel", name: "Sembunyikan Baris", key: "Ctrl + 9", desc: "Menyembunyikan (hide) baris yang dipilih." },
@@ -342,7 +405,6 @@
     { category: "Baris, Kolom & Tabel", name: "Buat Excel Table", key: "Ctrl + T", desc: "Mengubah range data menjadi Excel Table interaktif." },
     { category: "Baris, Kolom & Tabel", name: "Menu Klik Kanan", key: "Shift + F10", desc: "Membuka menu context (klik kanan) melalui keyboard." },
 
-    // 4. Format Angka & Teks
     { category: "Format Angka & Teks", name: "Cetak Tebal (Bold)", key: "Ctrl + B", desc: "Mengaktifkan/menonaktifkan cetak tebal." },
     { category: "Format Angka & Teks", name: "Cetak Miring (Italic)", key: "Ctrl + I", desc: "Mengaktifkan/menonaktifkan cetak miring." },
     { category: "Format Angka & Teks", name: "Garis Bawah (Underline)", key: "Ctrl + U", desc: "Mengaktifkan/menonaktifkan garis bawah." },
@@ -356,7 +418,6 @@
     { category: "Format Angka & Teks", name: "Format Angka Standar", key: "Ctrl + Shift + !", desc: "Format Number dengan 2 desimal & pemisah ribuan." },
     { category: "Format Angka & Teks", name: "Dialog Format Cells", key: "Ctrl + 1", desc: "Membuka jendela pengaturan lengkap Format Cells." },
 
-    // 5. Layout & Tampilan
     { category: "Layout & Tampilan", name: "Outline Border", key: "Ctrl + Shift + &", desc: "Memberi garis tepi luar pada sel yang dipilih." },
     { category: "Layout & Tampilan", name: "Hapus Border", key: "Ctrl + Shift + _", desc: "Menghapus semua garis tepi (Remove Border)." },
     { category: "Layout & Tampilan", name: "Garis Gridlines", key: "Alt + W + V + G", desc: "Menampilkan atau menyembunyikan garis kotak-kotak." },
@@ -366,7 +427,6 @@
     { category: "Layout & Tampilan", name: "Merge & Center", key: "Alt + H + M + C", desc: "Menggabungkan sel dan meratakannya di tengah." },
     { category: "Layout & Tampilan", name: "Wrap Text", key: "Alt + H + W", desc: "Mengaktifkan teks berlipat dalam satu sel." },
 
-    // 6. Formula & Kalkulasi
     { category: "Formula & Kalkulasi", name: "AutoSum Cepat", key: "Alt + =", desc: "Menjalankan fungsi AutoSum penjumlahan otomatis." },
     { category: "Formula & Kalkulasi", name: "Kunci Sel Absolut ($)", key: "F4 (saat edit rumus)", desc: "Mengunci referensi sel menjadi absolut ($A$1)." },
     { category: "Formula & Kalkulasi", name: "Repeat Action", key: "F4 (luar edit)", desc: "Mengulang perintah/tindakan terakhir." },
@@ -380,7 +440,6 @@
     { category: "Formula & Kalkulasi", name: "Trace Dependents", key: "Ctrl + ]", desc: "Pindah ke sel yang bergantung pada isi sel aktif." },
     { category: "Formula & Kalkulasi", name: "Pilih Sel Berisi Rumus", key: "F5 -> Alt + S + O", desc: "Menyeleksi semua sel yang berisi rumus." },
 
-    // 7. Pencarian & Filter
     { category: "Pencarian & Filter", name: "Cari Data (Find)", key: "Ctrl + F", desc: "Membuka jendela pencarian data." },
     { category: "Pencarian & Filter", name: "Cari & Ganti (Replace)", key: "Ctrl + H", desc: "Membuka jendela Cari & Ganti teks/angka." },
     { category: "Pencarian & Filter", name: "Go To Cell", key: "Ctrl + G / F5", desc: "Membuka dialog Go To untuk pindah sel spesifik." },
@@ -389,7 +448,6 @@
     { category: "Pencarian & Filter", name: "Buat Chart di Sheet", key: "Alt + F1", desc: "Membuat Grafik/Chart langsung di sheet aktif." },
     { category: "Pencarian & Filter", name: "Buat Chart di Sheet Baru", key: "F11", desc: "Membuat Chart otomatis pada Sheet baru." },
 
-    // 8. Manajemen File & Sheet
     { category: "Manajemen File", name: "Workbook Baru", key: "Ctrl + N", desc: "Membuat file workbook baru." },
     { category: "Manajemen File", name: "Buka File Excel", key: "Ctrl + O", desc: "Membuka file workbook yang sudah ada." },
     { category: "Manajemen File", name: "Simpan File (Save)", key: "Ctrl + S", desc: "Menyimpan workbook saat ini." },
@@ -400,7 +458,6 @@
     { category: "Manajemen File", name: "Rename Sheet", key: "Alt + H + O + R", desc: "Mengubah nama Sheet yang sedang aktif." },
     { category: "Manajemen File", name: "Hapus Sheet", key: "Alt + H + D + S", desc: "Menghapus Sheet yang aktif saat ini." },
 
-    // 9. Control Dasar
     { category: "Control Dasar", name: "Undo (Batal)", key: "Ctrl + Z", desc: "Membatalkan tindakan terakhir." },
     { category: "Control Dasar", name: "Redo (Ulangi)", key: "Ctrl + Y", desc: "Mengulang kembali tindakan yang dibatalkan." },
     { category: "Control Dasar", name: "Copy (Salin)", key: "Ctrl + C", desc: "Menyalin teks atau sel yang dipilih." },
@@ -409,13 +466,11 @@
     { category: "Control Dasar", name: "Hapus Isi Sel", key: "Delete", desc: "Menghapus konten sel tanpa merusak format." },
     { category: "Control Dasar", name: "Toggle Ribbon Menu", key: "Ctrl + F1", desc: "Menyembunyikan atau menampilkan Ribbon menu." },
 
-    // 10. Seleksi Tingkat Lanjut
     { category: "Seleksi Lanjut", name: "Pilih Sel Teks/Angka", key: "F5 -> Alt + S + C", desc: "Menyeleksi sel yang berisi konstanta (non-formula)." },
     { category: "Seleksi Lanjut", name: "Pilih Sel Kosong", key: "F5 -> Alt + S + K", desc: "Menyeleksi sel yang berstatus kosong (Blank Cells)." },
     { category: "Seleksi Lanjut", name: "Pilih Sel Ber-Komentar", key: "F5 -> Alt + S + Y", desc: "Menyeleksi sel yang berisi komentar/catatan." },
     { category: "Seleksi Lanjut", name: "Pilih Sel Terlihat Saja", key: "F5 -> Alt + S + V", desc: "Menyeleksi sel yang terlihat saja (sangat berguna saat copy data terfilter)." },
 
-    // 11. Ribbon Alt Keys
     { category: "Ribbon Alt Keys", name: "Pilihan Border", key: "Alt -> H -> B", desc: "Membuka menu pilihan Border." },
     { category: "Ribbon Alt Keys", name: "Fill Color (Warna Sel)", key: "Alt -> H -> H", desc: "Membuka pewarnaan latar belakang sel." },
     { category: "Ribbon Alt Keys", name: "Font Color (Warna Teks)", key: "Alt -> H -> FC", desc: "Membuka menu pewarnaan teks." },
