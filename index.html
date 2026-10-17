@@ -445,8 +445,21 @@
   }
 
   function downloadExcel(name) {
-    showToast(`Mengunduh file latihan Excel untuk ${name}...`);
+  const item = formulasData.find(f => f.name === name);
+  if (item && item.driveId) {
+    showToast(`Mengunduh file latihan Excel ${name}...`);
+    
+    // Membuat elemen link download otomatis
+    const link = document.createElement('a');
+    link.href = item.driveId;
+    link.download = item.driveId;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    showToast(`File latihan untuk ${name} belum tersedia.`);
   }
+}
 
   function openDetail(id) {
     const item = formulasData.find(f => f.id === id);
