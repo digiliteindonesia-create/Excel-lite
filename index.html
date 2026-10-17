@@ -59,65 +59,31 @@
     .main-content { display: flex; flex-direction: column; gap: 24px; transition: filter 0.3s ease; }
     .main-content.is-locked { filter: blur(6px) grayscale(15%); pointer-events: none; user-select: none; }
     
-    /* BANNER LOCK DENGAN LOGO EXCELLITE & GRADASI HIJAU PUTIH */
+    /* OVERLAY BANNER SANGAT SIMPLE & TRANSPARAN */
     .lock-overlay-banner { 
       position: absolute; 
       top: 0; left: 0; right: 0; bottom: 0; 
       z-index: 10; 
       display: flex; 
-      flex-direction: column;
-      align-items: center; 
       justify-content: center;
-      padding: 40px 20px; 
-      /* Background Gradasi Putih - Hijau Segar */
-      background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(236,253,245,0.88) 50%, rgba(16,185,129,0.25) 100%);
-      backdrop-filter: blur(4px);
-      border-radius: 16px;
-      border: 1px solid rgba(16,185,129,0.2);
-      box-shadow: inset 0 0 50px rgba(16,185,129,0.05);
-    }
-
-    .logged-out-logo-container {
-      text-align: center;
-      margin-bottom: 24px;
-      animation: fadeInDown 0.8s ease-out;
-    }
-
-    .logged-out-logo-container img {
-      max-width: 320px;
-      width: 80%;
-      height: auto;
-      filter: drop-shadow(0 10px 20px rgba(16, 185, 129, 0.2));
-      transition: transform 0.3s ease;
-    }
-
-    .logged-out-logo-container img:hover {
-      transform: scale(1.03);
+      padding-top: 160px; 
+      background: rgba(248, 250, 252, 0.2);
     }
 
     .lock-badge { 
-      background: rgba(15,23,42,0.92); 
+      background: rgba(15,23,42,0.88); 
       color: #fff; 
-      padding: 14px 32px; 
+      padding: 14px 28px; 
       border-radius: 50px; 
       font-weight: 700; 
-      font-size: 1rem;
+      font-size: 0.95rem;
       backdrop-filter: blur(8px); 
       display: flex; 
       gap: 12px; 
       align-items: center; 
       border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      height: fit-content;
     }
 
     /* Header & Controls */
@@ -252,11 +218,8 @@
       <!-- KONTEN UTAMA -->
       <div class="main-content-wrapper">
         
-        <!-- BANNER LOGOUT DENGAN LOGO & GRADASI HIJAU PUTIH -->
+        <!-- BANNER OVERLAY TRANSPARAN DENGAN IKON GEMBOK SANGAT SIMPLE -->
         <div class="lock-overlay-banner" id="lockBanner">
-          <div class="logged-out-logo-container">
-            <img src="excellite.png" alt="ExcelLite Big Logo" onerror="this.style.display='none'">
-          </div>
           <div class="lock-badge">
             <i class="fas fa-lock" style="color: #10b981;"></i> Silakan Login di Panel Kanan untuk Membuka Akses Full
           </div>
@@ -482,7 +445,7 @@
     { category: "Ribbon Alt Keys", name: "Tutup Aplikasi Excel", key: "Alt + F4", desc: "Menutup aplikasi Microsoft Excel sepenuhnya." }
   ];
 
-  let currentView = 'formulas'; // 'formulas' atau 'shortcuts'
+  let currentView = 'formulas';
   let currentFilter = 'all';
   let completedFormulas = JSON.parse(localStorage.getItem('excel_completed')) || [];
 
@@ -555,7 +518,6 @@
     }
   }
 
-  // RENDER KARTU RUMUS EXCEL
   function renderCards(data) {
     const grid = document.getElementById('cardGrid');
     grid.innerHTML = '';
@@ -600,7 +562,6 @@
     updateProgress();
   }
 
-  // RENDER KARTU SHORTCUT EXCEL
   function renderShortcuts(data) {
     const grid = document.getElementById('cardGrid');
     grid.innerHTML = '';
@@ -631,7 +592,6 @@
     });
   }
 
-  // PENGECEKAN JAWABAN EXCEL OTOMATIS
   function checkAnswer(id, event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -712,7 +672,6 @@
     }
   }
 
-  // LOGIKA DOWNLOAD EXCEL DENGAN ENCODE URI
   function downloadExcel(name) {
     const item = formulasData.find(f => f.name === name);
     if (item && item.driveId) {
