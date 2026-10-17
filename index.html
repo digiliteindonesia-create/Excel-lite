@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ExcelLite - Kurikulum & Cek Jawaban Excel</title>
+  <title>ExcelLite - Kurikulum & Shortcut Microsoft Excel</title>
   <!-- Icon & Library SheetJS untuk Cek Jawaban Excel -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -22,6 +22,8 @@
       --intermediate-bg: #eff6ff;
       --advanced-color: #8b5cf6;
       --advanced-bg: #f5f3ff;
+      --shortcut-color: #f59e0b;
+      --shortcut-bg: #fffbeb;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -68,7 +70,7 @@
     .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
     .tab-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: #f8fafc; color: var(--text-muted); font-weight: 600; cursor: pointer; }
     .tab-btn.active { background: #0f172a; color: #fff; }
-    .search-box { position: relative; flex-grow: 1; max-width: 260px; }
+    .search-box { position: relative; flex-grow: 1; max-width: 280px; }
     .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
     .search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; }
 
@@ -78,16 +80,33 @@
     .card.basic { border-top: 5px solid var(--basic-color); background: linear-gradient(to bottom, var(--basic-bg) 0%, #ffffff 120px); }
     .card.intermediate { border-top: 5px solid var(--intermediate-color); background: linear-gradient(to bottom, var(--intermediate-bg) 0%, #ffffff 120px); }
     .card.advanced { border-top: 5px solid var(--advanced-color); background: linear-gradient(to bottom, var(--advanced-bg) 0%, #ffffff 120px); }
+    .card.shortcut-card { border-top: 5px solid var(--shortcut-color); background: linear-gradient(to bottom, var(--shortcut-bg) 0%, #ffffff 120px); }
     
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .card-title-group h3 { font-size: 1.25rem; font-weight: 700; }
+    .card-title-group h3 { font-size: 1.15rem; font-weight: 700; }
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase; }
     .card.basic .badge { background: var(--basic-color); }
     .card.intermediate .badge { background: var(--intermediate-color); }
     .card.advanced .badge { background: var(--advanced-color); }
+    .card.shortcut-card .badge { background: var(--shortcut-color); }
 
     .syntax-box { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin: 12px 0; }
     .syntax-box span { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+    /* Key Badge Styling */
+    .key-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 1px solid #334155;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-top: 6px;
+    }
 
     /* AREA UPLOAD & CEK JAWABAN EXCEL */
     .upload-box {
@@ -156,6 +175,12 @@
           <li class="sidebar-item" id="menu-basic" onclick="selectSidebar('basic')"><i class="fas fa-seedling" style="color: var(--basic-color);"></i> Basic</li>
           <li class="sidebar-item" id="menu-intermediate" onclick="selectSidebar('intermediate')"><i class="fas fa-layer-group" style="color: var(--intermediate-color);"></i> Intermediate</li>
           <li class="sidebar-item" id="menu-advanced" onclick="selectSidebar('advanced')"><i class="fas fa-rocket" style="color: var(--advanced-color);"></i> Advanced</li>
+          
+          <!-- MENU SHORTCUT PENTING -->
+          <li class="sidebar-item" id="menu-shortcut" onclick="selectSidebar('shortcut')">
+            <i class="fas fa-keyboard" style="color: var(--shortcut-color);"></i> 100 SHORTCUT PENTING
+          </li>
+
           <li>
             <a href="https://t.me/namagroupanda" target="_blank" class="sidebar-item telegram-btn is-locked" id="telegramBtn">
               <i class="fab fa-telegram-plane"></i> Join Group Telegram
@@ -173,11 +198,11 @@
 
         <main class="main-content is-locked" id="mainContent">
           <div class="header">
-            <h1>Kurikulum Pembelajaran Microsoft Excel</h1>
-            <p>Daftar lengkap rumus Excel & latihan mandiri terintegrasi</p>
+            <h1 id="pageTitle">Kurikulum Pembelajaran Microsoft Excel</h1>
+            <p id="pageSubtitle">Daftar lengkap rumus Excel & latihan mandiri terintegrasi</p>
           </div>
 
-          <div class="progress-container">
+          <div class="progress-container" id="progressContainer">
             <div class="progress-info">
               <span><i class="fas fa-chart-line" style="color: #10b981;"></i> Progress Belajar Anda</span>
               <span id="progressText">0 dari 28 Rumus Selesai (0%)</span>
@@ -186,7 +211,7 @@
           </div>
 
           <div class="controls-wrapper">
-            <div class="filter-tabs">
+            <div class="filter-tabs" id="filterTabs">
               <button class="tab-btn active" onclick="filterLevel('all', event)">Semua (<span id="count-all">0</span>)</button>
               <button class="tab-btn" onclick="filterLevel('basic', event)">Basic (<span id="count-basic">0</span>)</button>
               <button class="tab-btn" onclick="filterLevel('intermediate', event)">Intermediate (<span id="count-intermediate">0</span>)</button>
@@ -194,7 +219,7 @@
             </div>
             <div class="search-box">
               <i class="fas fa-search"></i>
-              <input type="text" id="searchInput" placeholder="Cari rumus..." onkeyup="searchFormulas()">
+              <input type="text" id="searchInput" placeholder="Cari rumus / shortcut..." onkeyup="handleSearch()">
             </div>
           </div>
 
@@ -229,7 +254,7 @@
   <div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;">
-        <h3 id="modalTitle">Detail Rumus</h3>
+        <h3 id="modalTitle">Detail</h3>
         <button onclick="closeModalBtn()" style="border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
       </div>
       <div id="modalBody"></div>
@@ -239,7 +264,7 @@
   <div class="toast" id="toastBox"><i class="fas fa-info-circle" style="color: #10b981;"></i> <span id="toastMsg"></span></div>
 
 <script>
-  // Data 28+ Rumus Excel Beserta Kunci Sel Jawaban
+  // DATA 28 RUMUS EXCEL
   const formulasData = [
     { id: "sum", name: "SUM", level: "basic", levelText: "Basic", desc: "Menjumlahkan semua angka dalam rentang sel yang dipilih secara otomatis.", syntax: "=SUM(number1, [number2], ...)", example: "Contoh: =SUM(A1:A10)", notes: "Pastikan sel berisi angka.", driveId: "Contoh_Penggunaan_Rumus_SUM_Excel.xlsx", expectedCell: "B5", expectedValue: 150 },
     { id: "average", name: "AVERAGE", level: "basic", levelText: "Basic", desc: "Menghitung nilai rata-rata aritmatika.", syntax: "=AVERAGE(number1, [number2], ...)", example: "Contoh: =AVERAGE(B1:B10)", notes: "Sel kosong diabaikan.", driveId: "", expectedCell: "B5", expectedValue: 75 },
@@ -259,7 +284,7 @@
     { id: "xlookup", name: "XLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian fleksibel modern.", syntax: "=XLOOKUP(lookup_value, lookup_array, return_array)", example: "Contoh: =XLOOKUP(D2, A:A, B:B)", notes: "Pengganti VLOOKUP.", driveId: "", expectedCell: "B5", expectedValue: "Data Ditemukan" },
     { id: "index-match", name: "INDEX & MATCH", level: "intermediate", levelText: "Intermediate", desc: "Kombinasi pencarian tingkat lanjut.", syntax: "=INDEX(array, MATCH(lookup, array, 0))", example: "Contoh: =INDEX(B:B, MATCH(\"X\", A:A, 0))", notes: "Sangat fleksibel.", driveId: "", expectedCell: "B5", expectedValue: "Hasil Match" },
     { id: "left-right-mid", name: "LEFT / RIGHT / MID", level: "intermediate", levelText: "Intermediate", desc: "Mengekstrak karakter teks.", syntax: "=LEFT(text, [num_chars])", example: "Contoh: =LEFT(\"EXCEL\", 2)", notes: "Potong teks.", driveId: "", expectedCell: "B5", expectedValue: "EX" },
-    { id: "trim", name: "TRIM", level: "intermediate", levelText: "Intermediate", desc: "Menghapus spasi berlebih.", syntax: "=TRIM(text)", example: "Contoh: =TRIM(\"  Budi  \")", notes: "Bersihkan data.", driveId: "", expectedCell: "B5", expectedValue: "Budi" },
+    { id: "trim", name: "TRIM", level: "intermediate", levelText: "Intermediate", desc: "Menhapus spasi berlebih.", syntax: "=TRIM(text)", example: "Contoh: =TRIM(\"  Budi  \")", notes: "Bersihkan data.", driveId: "", expectedCell: "B5", expectedValue: "Budi" },
     { id: "today-now", name: "TODAY / NOW", level: "intermediate", levelText: "Intermediate", desc: "Menampilkan tanggal & waktu.", syntax: "=TODAY() atau =NOW()", example: "Contoh: =TODAY()", notes: "Otomatis update.", driveId: "", expectedCell: "B5", expectedValue: "2026-10-17" },
     { id: "datedif", name: "DATEDIF", level: "intermediate", levelText: "Intermediate", desc: "Menghitung selisih tanggal.", syntax: "=DATEDIF(start, end, unit)", example: "Contoh: =DATEDIF(A1, B1, \"Y\")", notes: "Fungsi tersembunyi.", driveId: "", expectedCell: "B5", expectedValue: 5 },
     { id: "filter", name: "FILTER", level: "intermediate", levelText: "Intermediate", desc: "Menyaring rentang data dinamis.", syntax: "=FILTER(array, include)", example: "Contoh: =FILTER(A:B, B:B=\"Aktif\")", notes: "Spill range.", driveId: "", expectedCell: "B5", expectedValue: "Aktif" },
@@ -273,11 +298,141 @@
     { id: "lambda", name: "LAMBDA", level: "advanced", levelText: "Advanced", desc: "Fungsi kustom buatan sendiri.", syntax: "=LAMBDA(params, calculation)", example: "Contoh: =LAMBDA(x, x*2)(5)", notes: "Custom function.", driveId: "", expectedCell: "B5", expectedValue: 10 }
   ];
 
+  // DATA 100 SHORTCUT EXCEL
+  const shortcutsData = [
+    // 1. Navigasi & Seleksi
+    { category: "Navigasi & Seleksi", name: "Pindah ke Ujung Data", key: "Ctrl + Panah (▲/▼/◄/►)", desc: "Pindah langsung ke sel paling ujung/terakhir yang berisi data." },
+    { category: "Navigasi & Seleksi", name: "Blok Sampai Ujung Data", key: "Ctrl + Shift + Panah", desc: "Memblok/menyeleksi data sampai sel paling ujung." },
+    { category: "Navigasi & Seleksi", name: "Pindah ke Sel Pertama", key: "Ctrl + Home", desc: "Pindah ke sel paling pertama di lembar kerja (A1)." },
+    { category: "Navigasi & Seleksi", name: "Pindah ke Sel Terakhir", key: "Ctrl + End", desc: "Pindah ke sel terakhir yang berisi data/format." },
+    { category: "Navigasi & Seleksi", name: "Pilih Semua Data", key: "Ctrl + A", desc: "Menyeleksi seluruh data dalam tabel (tekan 2x untuk seluruh sheet)." },
+    { category: "Navigasi & Seleksi", name: "Pilih Seluruh Baris", key: "Shift + Space", desc: "Menyeleksi seluruh baris (row) yang aktif." },
+    { category: "Navigasi & Seleksi", name: "Pilih Seluruh Kolom", key: "Ctrl + Space", desc: "Menyeleksi seluruh kolom (column) yang aktif." },
+    { category: "Navigasi & Seleksi", name: "Scroll Atas / Bawah", key: "Page Down / Page Up", desc: "Pindah tampilan ke bawah atau ke atas satu layar." },
+    { category: "Navigasi & Seleksi", name: "Scroll Kanan / Kiri", key: "Alt + Page Down / Page Up", desc: "Pindah tampilan ke kanan atau ke kiri satu layar." },
+    { category: "Navigasi & Seleksi", name: "Pindah Lembar Kerja (Sheet)", key: "Ctrl + Page Down / Page Up", desc: "Pindah ke Sheet berikutnya atau sebelumnya." },
+
+    // 2. Edit & Input Data
+    { category: "Edit & Input Data", name: "Edit Sel Aktif", key: "F2", desc: "Mengedit sel yang sedang dipilih secara langsung." },
+    { category: "Edit & Input Data", name: "Simpan & Geser Bawah", key: "Enter", desc: "Menyimpan isian dan pindah ke sel bawah." },
+    { category: "Edit & Input Data", name: "Simpan & Geser Kanan", key: "Tab", desc: "Menyimpan isian dan pindah ke sel sebelah kanan." },
+    { category: "Edit & Input Data", name: "Simpan & Geser Atas", key: "Shift + Enter", desc: "Menyimpan isian dan pindah ke sel atas." },
+    { category: "Edit & Input Data", name: "Simpan & Geser Kiri", key: "Shift + Tab", desc: "Menyimpan isian dan pindah ke sel sebelah kiri." },
+    { category: "Edit & Input Data", name: "Baris Baru dalam Sel", key: "Alt + Enter", desc: "Membuat baris baru di dalam sel yang sama (line break)." },
+    { category: "Edit & Input Data", name: "Isi Semua Sel Sekaligus", key: "Ctrl + Enter", desc: "Mengisi seluruh sel yang diblok dengan data/rumus yang sama." },
+    { category: "Edit & Input Data", name: "Copy dari Sel Atas (Fill Down)", key: "Ctrl + D", desc: "Menyalin teks/rumus dari sel di atasnya secara cepat." },
+    { category: "Edit & Input Data", name: "Copy dari Sel Kiri (Fill Right)", key: "Ctrl + R", desc: "Menyalin teks/rumus dari sel di sebelahnya secara cepat." },
+    { category: "Edit & Input Data", name: "Input Tanggal Hari Ini", key: "Ctrl + ; (titik koma)", desc: "Memasukkan tanggal hari ini secara otomatis." },
+    { category: "Edit & Input Data", name: "Input Jam Saat Ini", key: "Ctrl + Shift + : (titik dua)", desc: "Memasukkan jam saat ini secara otomatis." },
+    { category: "Edit & Input Data", name: "Paste Special", key: "Ctrl + Alt + V", desc: "Membuka jendela Paste Special untuk opsi penempelan." },
+    { category: "Edit & Input Data", name: "Copy Rumus Tanpa Ubah Referensi", key: "Ctrl + ' (petik tunggal)", desc: "Menyalin rumus persis dari sel di atasnya." },
+    { category: "Edit & Input Data", name: "Flash Fill", key: "Ctrl + E", desc: "Menjalankan ekstraksi/pola data otomatis cerdas." },
+    { category: "Edit & Input Data", name: "Sisipkan Hyperlink", key: "Ctrl + K", desc: "Menyisipkan tautan/link web atau dokumen." },
+    { category: "Edit & Input Data", name: "Batal / Batal Edit", key: "Esc", desc: "Membatalkan pengisian sel atau keluar dari mode edit." },
+
+    // 3. Operasi Baris, Kolom & Tabel
+    { category: "Baris, Kolom & Tabel", name: "Tambah Baris / Kolom", key: "Ctrl + Shift + +", desc: "Menyisipkan baris atau kolom baru." },
+    { category: "Baris, Kolom & Tabel", name: "Hapus Baris / Kolom", key: "Ctrl + - (Minus)", desc: "Menghapus baris atau kolom yang dipilih." },
+    { category: "Baris, Kolom & Tabel", name: "Sembunyikan Baris", key: "Ctrl + 9", desc: "Menyembunyikan (hide) baris yang dipilih." },
+    { category: "Baris, Kolom & Tabel", name: "Tampilkan Baris", key: "Ctrl + Shift + 9", desc: "Menampilkan kembali (unhide) baris yang tersembunyi." },
+    { category: "Baris, Kolom & Tabel", name: "Sembunyikan Kolom", key: "Ctrl + 0", desc: "Menyembunyikan (hide) kolom yang dipilih." },
+    { category: "Baris, Kolom & Tabel", name: "Tampilkan Kolom", key: "Ctrl + Shift + 0", desc: "Menampilkan kembali (unhide) kolom tersembunyi." },
+    { category: "Baris, Kolom & Tabel", name: "Group Data", key: "Alt + Shift + Panah Kanan", desc: "Membuat grup baris/kolom." },
+    { category: "Baris, Kolom & Tabel", name: "Ungroup Data", key: "Alt + Shift + Panah Kiri", desc: "Menghapus grup baris/kolom." },
+    { category: "Baris, Kolom & Tabel", name: "Buat Excel Table", key: "Ctrl + T", desc: "Mengubah range data menjadi Excel Table interaktif." },
+    { category: "Baris, Kolom & Tabel", name: "Menu Klik Kanan", key: "Shift + F10", desc: "Membuka menu context (klik kanan) melalui keyboard." },
+
+    // 4. Format Angka & Teks
+    { category: "Format Angka & Teks", name: "Cetak Tebal (Bold)", key: "Ctrl + B", desc: "Mengaktifkan/menonaktifkan cetak tebal." },
+    { category: "Format Angka & Teks", name: "Cetak Miring (Italic)", key: "Ctrl + I", desc: "Mengaktifkan/menonaktifkan cetak miring." },
+    { category: "Format Angka & Teks", name: "Garis Bawah (Underline)", key: "Ctrl + U", desc: "Mengaktifkan/menonaktifkan garis bawah." },
+    { category: "Format Angka & Teks", name: "Coret Teks (Strikethrough)", key: "Ctrl + 5", desc: "Memberi efek coret garis pada teks." },
+    { category: "Format Angka & Teks", name: "Format General", key: "Ctrl + Shift + ~", desc: "Mengubah format ke angka General." },
+    { category: "Format Angka & Teks", name: "Format Mata Uang", key: "Ctrl + Shift + $", desc: "Mengubah format menjadi Currency (Mata Uang)." },
+    { category: "Format Angka & Teks", name: "Format Persentase", key: "Ctrl + Shift + %", desc: "Mengubah format menjadi Percentage." },
+    { category: "Format Angka & Teks", name: "Format Sains", key: "Ctrl + Shift + ^", desc: "Mengubah format menjadi Eksponensial/Sains." },
+    { category: "Format Angka & Teks", name: "Format Tanggal", key: "Ctrl + Shift + #", desc: "Mengubah format menjadi Tanggal (DD-MMM-YY)." },
+    { category: "Format Angka & Teks", name: "Format Waktu", key: "Ctrl + Shift + @", desc: "Mengubah format menjadi Waktu (HH:MM AM/PM)." },
+    { category: "Format Angka & Teks", name: "Format Angka Standar", key: "Ctrl + Shift + !", desc: "Format Number dengan 2 desimal & pemisah ribuan." },
+    { category: "Format Angka & Teks", name: "Dialog Format Cells", key: "Ctrl + 1", desc: "Membuka jendela pengaturan lengkap Format Cells." },
+
+    // 5. Layout & Tampilan
+    { category: "Layout & Tampilan", name: "Outline Border", key: "Ctrl + Shift + &", desc: "Memberi garis tepi luar pada sel yang dipilih." },
+    { category: "Layout & Tampilan", name: "Hapus Border", key: "Ctrl + Shift + _", desc: "Menghapus semua garis tepi (Remove Border)." },
+    { category: "Layout & Tampilan", name: "Garis Gridlines", key: "Alt + W + V + G", desc: "Menampilkan atau menyembunyikan garis kotak-kotak." },
+    { category: "Layout & Tampilan", name: "Freeze Panes", key: "Alt + W + F + F", desc: "Mengunci baris/kolom agar tidak bergerak saat di-scroll." },
+    { category: "Layout & Tampilan", name: "Auto-fit Lebar Kolom", key: "Alt + H + O + I", desc: "Mengatur lebar kolom secara otomatis sesuai teks." },
+    { category: "Layout & Tampilan", name: "Auto-fit Tinggi Baris", key: "Alt + H + O + A", desc: "Mengatur tinggi baris secara otomatis." },
+    { category: "Layout & Tampilan", name: "Merge & Center", key: "Alt + H + M + C", desc: "Menggabungkan sel dan meratakannya di tengah." },
+    { category: "Layout & Tampilan", name: "Wrap Text", key: "Alt + H + W", desc: "Mengaktifkan teks berlipat dalam satu sel." },
+
+    // 6. Formula & Kalkulasi
+    { category: "Formula & Kalkulasi", name: "AutoSum Cepat", key: "Alt + =", desc: "Menjalankan fungsi AutoSum penjumlahan otomatis." },
+    { category: "Formula & Kalkulasi", name: "Kunci Sel Absolut ($)", key: "F4 (saat edit rumus)", desc: "Mengunci referensi sel menjadi absolut ($A$1)." },
+    { category: "Formula & Kalkulasi", name: "Repeat Action", key: "F4 (luar edit)", desc: "Mengulang perintah/tindakan terakhir." },
+    { category: "Formula & Kalkulasi", name: "Insert Function", key: "Shift + F3", desc: "Membuka jendela penyisipan fungsi rumus." },
+    { category: "Formula & Kalkulasi", name: "Eksekusi Array Formula", key: "Ctrl + Shift + Enter", desc: "Eksekusi rumus Array Formula klasik." },
+    { category: "Formula & Kalkulasi", name: "Tampilkan Semua Rumus", key: "Ctrl + `", desc: "Menampilkan/menyembunyikan semua rumus di sheet." },
+    { category: "Formula & Kalkulasi", name: "Calculate Workbook", key: "F9", desc: "Menhitung ulang seluruh formula workbook." },
+    { category: "Formula & Kalkulasi", name: "Calculate Sheet", key: "Shift + F9", desc: "Menghitung ulang formula pada sheet aktif saja." },
+    { category: "Formula & Kalkulasi", name: "Evaluate Formula", key: "Alt + M + V", desc: "Evaluasi kalkulasi rumus langkah demi langkah." },
+    { category: "Formula & Kalkulasi", name: "Trace Precedents", key: "Ctrl + [", desc: "Pindah ke sel referensi penyusun rumus." },
+    { category: "Formula & Kalkulasi", name: "Trace Dependents", key: "Ctrl + ]", desc: "Pindah ke sel yang bergantung pada isi sel aktif." },
+    { category: "Formula & Kalkulasi", name: "Pilih Sel Berisi Rumus", key: "F5 -> Alt + S + O", desc: "Menyeleksi semua sel yang berisi rumus." },
+
+    // 7. Pencarian & Filter
+    { category: "Pencarian & Filter", name: "Cari Data (Find)", key: "Ctrl + F", desc: "Membuka jendela pencarian data." },
+    { category: "Pencarian & Filter", name: "Cari & Ganti (Replace)", key: "Ctrl + H", desc: "Membuka jendela Cari & Ganti teks/angka." },
+    { category: "Pencarian & Filter", name: "Go To Cell", key: "Ctrl + G / F5", desc: "Membuka dialog Go To untuk pindah sel spesifik." },
+    { category: "Pencarian & Filter", name: "Toggle AutoFilter", key: "Ctrl + Shift + L", desc: "Mengaktifkan atau mematikan fitur Filter data." },
+    { category: "Pencarian & Filter", name: "Buka Dropdown Filter", key: "Alt + Panah Bawah", desc: "Membuka menu dropdown filter pada header." },
+    { category: "Pencarian & Filter", name: "Buat Chart di Sheet", key: "Alt + F1", desc: "Membuat Grafik/Chart langsung di sheet aktif." },
+    { category: "Pencarian & Filter", name: "Buat Chart di Sheet Baru", key: "F11", desc: "Membuat Chart otomatis pada Sheet baru." },
+
+    // 8. Manajemen File & Sheet
+    { category: "Manajemen File", name: "Workbook Baru", key: "Ctrl + N", desc: "Membuat file workbook baru." },
+    { category: "Manajemen File", name: "Buka File Excel", key: "Ctrl + O", desc: "Membuka file workbook yang sudah ada." },
+    { category: "Manajemen File", name: "Simpan File (Save)", key: "Ctrl + S", desc: "Menyimpan workbook saat ini." },
+    { category: "Manajemen File", name: "Save As", key: "F12", desc: "Menyimpan file dengan nama/lokasi baru." },
+    { category: "Manajemen File", name: "Tutup Workbook", key: "Ctrl + W", desc: "Menutup workbook yang sedang aktif." },
+    { category: "Manajemen File", name: "Cetak / Print", key: "Ctrl + P", desc: "Membuka jendela cetak lembar kerja." },
+    { category: "Manajemen File", name: "Tambah Sheet Baru", key: "Shift + F11", desc: "Menambahkan Worksheet (Sheet) baru." },
+    { category: "Manajemen File", name: "Rename Sheet", key: "Alt + H + O + R", desc: "Mengubah nama Sheet yang sedang aktif." },
+    { category: "Manajemen File", name: "Hapus Sheet", key: "Alt + H + D + S", desc: "Menghapus Sheet yang aktif saat ini." },
+
+    // 9. Control Dasar
+    { category: "Control Dasar", name: "Undo (Batal)", key: "Ctrl + Z", desc: "Membatalkan tindakan terakhir." },
+    { category: "Control Dasar", name: "Redo (Ulangi)", key: "Ctrl + Y", desc: "Mengulang kembali tindakan yang dibatalkan." },
+    { category: "Control Dasar", name: "Copy (Salin)", key: "Ctrl + C", desc: "Menyalin teks atau sel yang dipilih." },
+    { category: "Control Dasar", name: "Cut (Potong)", key: "Ctrl + X", desc: "Memotong/memindahkan isi sel." },
+    { category: "Control Dasar", name: "Paste (Tempel)", key: "Ctrl + V", desc: "Menempelkan isi sel yang disalin." },
+    { category: "Control Dasar", name: "Hapus Isi Sel", key: "Delete", desc: "Menghapus konten sel tanpa merusak format." },
+    { category: "Control Dasar", name: "Toggle Ribbon Menu", key: "Ctrl + F1", desc: "Menyembunyikan atau menampilkan Ribbon menu." },
+
+    // 10. Seleksi Tingkat Lanjut
+    { category: "Seleksi Lanjut", name: "Pilih Sel Teks/Angka", key: "F5 -> Alt + S + C", desc: "Menyeleksi sel yang berisi konstanta (non-formula)." },
+    { category: "Seleksi Lanjut", name: "Pilih Sel Kosong", key: "F5 -> Alt + S + K", desc: "Menyeleksi sel yang berstatus kosong (Blank Cells)." },
+    { category: "Seleksi Lanjut", name: "Pilih Sel Ber-Komentar", key: "F5 -> Alt + S + Y", desc: "Menyeleksi sel yang berisi komentar/catatan." },
+    { category: "Seleksi Lanjut", name: "Pilih Sel Terlihat Saja", key: "F5 -> Alt + S + V", desc: "Menyeleksi sel yang terlihat saja (sangat berguna saat copy data terfilter)." },
+
+    // 11. Ribbon Alt Keys
+    { category: "Ribbon Alt Keys", name: "Pilihan Border", key: "Alt -> H -> B", desc: "Membuka menu pilihan Border." },
+    { category: "Ribbon Alt Keys", name: "Fill Color (Warna Sel)", key: "Alt -> H -> H", desc: "Membuka pewarnaan latar belakang sel." },
+    { category: "Ribbon Alt Keys", name: "Font Color (Warna Teks)", key: "Alt -> H -> FC", desc: "Membuka menu pewarnaan teks." },
+    { category: "Ribbon Alt Keys", name: "Center Align Teks", key: "Alt -> H -> A -> C", desc: "Meratakan teks ke tengah secara horizontal." },
+    { category: "Ribbon Alt Keys", name: "Menu Sort Data", key: "Alt -> A -> S -> S", desc: "Membuka menu Pengurutan Data." },
+    { category: "Ribbon Alt Keys", name: "Remove Duplicates", key: "Alt -> A -> M", desc: "Menghapus data ganda pada tabel." },
+    { category: "Ribbon Alt Keys", name: "Data Validation", key: "Alt -> A -> V -> V", desc: "Membuka menu aturan Validasi Data." },
+    { category: "Ribbon Alt Keys", name: "Insert PivotTable", key: "Alt -> N -> V", desc: "Menyisipkan Tabel Pivot." },
+    { category: "Ribbon Alt Keys", name: "Tutup Aplikasi Excel", key: "Alt + F4", desc: "Menutup aplikasi Microsoft Excel sepenuhnya." }
+  ];
+
+  let currentView = 'formulas'; // 'formulas' atau 'shortcuts'
   let currentFilter = 'all';
   let completedFormulas = JSON.parse(localStorage.getItem('excel_completed')) || [];
 
   window.onload = function() {
-    renderCards(formulasData);
+    renderView();
     if (localStorage.getItem('excel_logged_in') === 'true') {
       applyLoggedInState();
     } else {
@@ -316,6 +471,36 @@
     showToast("Anda telah keluar.");
   }
 
+  function selectSidebar(type) {
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`menu-${type}`).classList.add('active');
+
+    if (type === 'shortcut') {
+      currentView = 'shortcuts';
+      document.getElementById('pageTitle').innerText = "100 Shortcut Paling Berguna di Microsoft Excel";
+      document.getElementById('pageSubtitle').innerText = "Kumpulan tombol pintas untuk mempercepat alur kerja Anda di Excel";
+      document.getElementById('progressContainer').style.display = 'none';
+      document.getElementById('filterTabs').style.display = 'none';
+      renderShortcuts(shortcutsData);
+    } else {
+      currentView = 'formulas';
+      document.getElementById('pageTitle').innerText = "Kurikulum Pembelajaran Microsoft Excel";
+      document.getElementById('pageSubtitle').innerText = "Daftar lengkap rumus Excel & latihan mandiri terintegrasi";
+      document.getElementById('progressContainer').style.display = 'block';
+      document.getElementById('filterTabs').style.display = 'flex';
+      filterLevel(type);
+    }
+  }
+
+  function renderView() {
+    if (currentView === 'formulas') {
+      renderCards(formulasData);
+    } else {
+      renderShortcuts(shortcutsData);
+    }
+  }
+
+  // RENDER KARTU RUMUS EXCEL
   function renderCards(data) {
     const grid = document.getElementById('cardGrid');
     grid.innerHTML = '';
@@ -333,7 +518,6 @@
         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">${item.desc}</p>
         <div class="syntax-box"><span>Sintaks</span>${item.syntax}</div>
         
-        <!-- TOMBOL UPLOAD & CEK JAWABAN -->
         <div class="upload-box">
           <label class="upload-btn-label" for="upload-${item.id}">
             <i class="fas fa-file-excel" style="color: #10b981;"></i> 
@@ -361,7 +545,38 @@
     updateProgress();
   }
 
-  // LOGIKA PENGECEKAN JAWABAN EXCEL OTOMATIS (SheetJS)
+  // RENDER KARTU SHORTCUT EXCEL
+  function renderShortcuts(data) {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+
+    if(data.length === 0) {
+      grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Shortcut tidak ditemukan.</p>`;
+      return;
+    }
+
+    data.forEach(item => {
+      const card = document.createElement('div');
+      card.className = `card shortcut-card`;
+      
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="card-title-group">
+            <h3>${item.name}</h3>
+          </div>
+          <span class="badge">${item.category}</span>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">${item.desc}</p>
+        <div style="margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; display: block;">TOMBOL PINTAS:</span>
+          <div class="key-badge"><i class="fas fa-keyboard" style="margin-right: 6px;"></i>${item.key}</div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // PENGECEKAN JAWABAN EXCEL OTOMATIS
   function checkAnswer(id, event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -378,7 +593,6 @@
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-        // Ambil isi sel jawaban
         const cell = firstSheet[item.expectedCell];
         const userValue = cell ? cell.v : null;
 
@@ -432,24 +646,23 @@
     renderCards(filtered);
   }
 
-  function searchFormulas() {
+  function handleSearch() {
     const kw = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = formulasData.filter(f => f.name.toLowerCase().includes(kw) || f.desc.toLowerCase().includes(kw));
-    renderCards(filtered);
+    if (currentView === 'formulas') {
+      const filtered = formulasData.filter(f => f.name.toLowerCase().includes(kw) || f.desc.toLowerCase().includes(kw));
+      renderCards(filtered);
+    } else {
+      const filtered = shortcutsData.filter(s => s.name.toLowerCase().includes(kw) || s.key.toLowerCase().includes(kw) || s.category.toLowerCase().includes(kw) || s.desc.toLowerCase().includes(kw));
+      renderShortcuts(filtered);
+    }
   }
 
-  function selectSidebar(lvl) {
-    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-    document.getElementById(`menu-${lvl}`).classList.add('active');
-    filterLevel(lvl);
-  }
-
+  // LOGIKA DOWNLOAD EXCEL DENGAN ENCODE URI
   function downloadExcel(name) {
     const item = formulasData.find(f => f.name === name);
     if (item && item.driveId) {
       showToast(`Mengunduh file latihan Excel ${name}...`);
       
-      // Menggunakan encodeURI agar nama file dengan spasi terbaca oleh browser
       const link = document.createElement('a');
       link.href = encodeURI(item.driveId);
       link.download = item.driveId;
