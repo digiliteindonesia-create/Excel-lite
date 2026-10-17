@@ -26,8 +26,21 @@
       --shortcut-bg: #fffbeb;
     }
 
+    body.dark-theme {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      
+      --basic-bg: #064e3b;
+      --intermediate-bg: #1e3a8a;
+      --advanced-bg: #4c1d95;
+      --shortcut-bg: #78350f;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+    body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; transition: background 0.3s, color 0.3s; }
 
     .app-container { padding: 24px; max-width: 1600px; margin: 0 auto; }
     .dashboard-layout { display: grid; grid-template-columns: 240px 1fr 340px; gap: 24px; align-items: start; transition: all 0.3s ease; }
@@ -41,15 +54,41 @@
       .dashboard-layout, .dashboard-layout.is-logged-in { grid-template-columns: 1fr; }
     }
 
+    /* Dark Mode Switcher */
+    .theme-toggle-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .theme-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #10b981; }
+    input:checked + .slider:before { transform: translateX(18px); }
+
     /* Sidebar Kiri */
-    .sidebar { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: sticky; top: 24px; }
+    .sidebar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: sticky; top: 24px; }
     .sidebar-brand { text-align: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); }
     .sidebar-brand img { width: 160px; height: auto; object-fit: contain; }
     .sidebar-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
     .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .sidebar-item { padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; background: #f8fafc; text-decoration: none; }
-    .sidebar-item:hover { background: #f1f5f9; transform: translateX(4px); }
-    .sidebar-item.active { background: #0f172a; color: #ffffff; }
+    .sidebar-item { padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; background: var(--bg-color); border: 1px solid var(--border-color); text-decoration: none; }
+    .sidebar-item:hover { transform: translateX(4px); }
+    .sidebar-item.active { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+    
+    .nav-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #fff; }
+    .nav-badge.free { background: #10b981; }
+    .nav-badge.pro { background: #3b82f6; }
+    .nav-badge.hot { background: #f59e0b; }
+
     .sidebar-item.telegram-btn { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
     .sidebar-item.telegram-btn.is-locked { filter: blur(4px); pointer-events: none; opacity: 0.6; }
     .sidebar-item.logout-btn { margin-top: 10px; background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; display: none; }
@@ -59,19 +98,29 @@
     .main-content { display: flex; flex-direction: column; gap: 24px; transition: filter 0.3s ease; }
     .main-content.is-locked { filter: blur(6px) grayscale(15%); pointer-events: none; user-select: none; }
     
-    /* OVERLAY BANNER SANGAT SIMPLE & TRANSPARAN */
+    /* OVERLAY BANNER TEASER DENGAN CALL TO ACTION */
     .lock-overlay-banner { 
       position: absolute; 
       top: 0; left: 0; right: 0; bottom: 0; 
       z-index: 10; 
       display: flex; 
-      justify-content: center;
-      padding-top: 160px; 
-      background: rgba(248, 250, 252, 0.2);
+      flex-direction: column;
+      align-items: center;
+      padding-top: 140px; 
+      background: rgba(248, 250, 252, 0.25);
+    }
+
+    .lock-badge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      max-width: 480px;
     }
 
     .lock-badge { 
-      background: rgba(15,23,42,0.88); 
+      background: rgba(15,23,42,0.92); 
       color: #fff; 
       padding: 14px 28px; 
       border-radius: 50px; 
@@ -79,33 +128,38 @@
       font-size: 0.95rem;
       backdrop-filter: blur(8px); 
       display: flex; 
-      gap: 12px; 
+      gap: 10px; 
       align-items: center; 
       border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-      height: fit-content;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+      100% { box-shadow: 0 0 20px 8px rgba(16,185,129,0.2); }
     }
 
     /* Header & Controls */
-    .progress-container, .controls-wrapper { background: #fff; padding: 16px 24px; border-radius: 12px; border: 1px solid var(--border-color); }
+    .progress-container, .controls-wrapper { background: var(--card-bg); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--border-color); }
     .progress-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; font-size: 0.92rem; }
     .progress-bar-bg { width: 100%; background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; }
     .progress-bar-fill { width: 0%; background: linear-gradient(90deg, #10b981, #3b82f6); height: 100%; transition: width 0.4s ease; }
     .controls-wrapper { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
     .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tab-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: #f8fafc; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+    .tab-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-muted); font-weight: 600; cursor: pointer; }
     .tab-btn.active { background: #0f172a; color: #fff; }
     .search-box { position: relative; flex-grow: 1; max-width: 280px; }
     .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-    .search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; }
+    .search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; background: var(--card-bg); color: var(--text-main); }
 
     /* Card Grid */
     .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
     .card { background: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
-    .card.basic { border-top: 5px solid var(--basic-color); background: linear-gradient(to bottom, var(--basic-bg) 0%, #ffffff 120px); }
-    .card.intermediate { border-top: 5px solid var(--intermediate-color); background: linear-gradient(to bottom, var(--intermediate-bg) 0%, #ffffff 120px); }
-    .card.advanced { border-top: 5px solid var(--advanced-color); background: linear-gradient(to bottom, var(--advanced-bg) 0%, #ffffff 120px); }
-    .card.shortcut-card { border-top: 5px solid var(--shortcut-color); background: linear-gradient(to bottom, var(--shortcut-bg) 0%, #ffffff 120px); }
+    .card.basic { border-top: 5px solid var(--basic-color); background: linear-gradient(to bottom, var(--basic-bg) 0%, var(--card-bg) 120px); }
+    .card.intermediate { border-top: 5px solid var(--intermediate-color); background: linear-gradient(to bottom, var(--intermediate-bg) 0%, var(--card-bg) 120px); }
+    .card.advanced { border-top: 5px solid var(--advanced-color); background: linear-gradient(to bottom, var(--advanced-bg) 0%, var(--card-bg) 120px); }
+    .card.shortcut-card { border-top: 5px solid var(--shortcut-color); background: linear-gradient(to bottom, var(--shortcut-bg) 0%, var(--card-bg) 120px); }
     
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .card-title-group h3 { font-size: 1.15rem; font-weight: 700; }
@@ -115,10 +169,9 @@
     .card.advanced .badge { background: var(--advanced-color); }
     .card.shortcut-card .badge { background: var(--shortcut-color); }
 
-    .syntax-box { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin: 12px 0; }
+    .syntax-box { background: var(--bg-color); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin: 12px 0; border: 1px solid var(--border-color); }
     .syntax-box span { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 
-    /* Key Badge Styling */
     .key-badge {
       display: inline-block;
       background: #0f172a;
@@ -137,15 +190,14 @@
     .upload-box {
       margin: 10px 0;
       padding: 10px;
-      border: 2px dashed #cbd5e1;
+      border: 2px dashed var(--border-color);
       border-radius: 8px;
-      background: #f8fafc;
+      background: var(--bg-color);
       text-align: center;
       transition: all 0.2s ease;
     }
     .upload-box:hover {
       border-color: #3b82f6;
-      background: #eff6ff;
     }
     .upload-btn-label {
       font-size: 0.82rem;
@@ -163,22 +215,26 @@
 
     .card-footer { display: flex; gap: 8px; margin-top: auto; }
     .btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; }
-    .btn-detail { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .btn-detail { background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); }
     .card.basic .btn-download { background: var(--basic-color); color: #fff; }
     .card.intermediate .btn-download { background: var(--intermediate-color); color: #fff; }
     .card.advanced .btn-download { background: var(--advanced-color); color: #fff; }
 
     /* Panel Login Kanan */
-    .login-right-panel { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 28px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: sticky; top: 24px; }
+    .login-right-panel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: sticky; top: 24px; }
     .login-right-panel.hidden { display: none; }
-    .form-group { margin-bottom: 16px; }
-    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; }
+    .form-group { margin-bottom: 16px; position: relative; }
+    .form-control { width: 100%; padding: 10px 38px 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; background: var(--bg-color); color: var(--text-main); }
+    .eye-icon { position: absolute; right: 12px; top: 38px; cursor: pointer; color: var(--text-muted); }
+    
+    .remember-demo-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-muted); }
     .btn-login { width: 100%; padding: 12px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-demo { width: 100%; padding: 8px; background: transparent; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; margin-top: 10px; }
 
     /* Modal & Toast */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
     .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 90%; max-width: 600px; border-radius: 12px; padding: 24px; }
+    .modal-content { background: var(--card-bg); width: 90%; max-width: 600px; border-radius: 12px; padding: 24px; color: var(--text-main); }
     
     .toast { position: fixed; bottom: 25px; right: 25px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 8px; z-index: 1100; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
     .toast.show { transform: translateY(0); opacity: 1; }
@@ -191,37 +247,63 @@
       
       <!-- SIDEBAR KIRI -->
       <aside class="sidebar">
+        <!-- Switcher Dark Mode -->
+        <div class="theme-toggle-box">
+          <span><i class="fas fa-moon"></i> Dark Mode</span>
+          <label class="theme-switch">
+            <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+            <span class="slider"></span>
+          </label>
+        </div>
+
         <div class="sidebar-brand">
           <img src="excellite.png" alt="ExcelLite Logo" onerror="this.style.display='none'">
         </div>
         <div class="sidebar-title">Menu Belajar</div>
         <ul class="sidebar-menu">
-          <li class="sidebar-item active" id="menu-all" onclick="selectSidebar('all')"><i class="fas fa-th-large"></i> Semua Kurikulum</li>
-          <li class="sidebar-item" id="menu-basic" onclick="selectSidebar('basic')"><i class="fas fa-seedling" style="color: var(--basic-color);"></i> Basic</li>
-          <li class="sidebar-item" id="menu-intermediate" onclick="selectSidebar('intermediate')"><i class="fas fa-layer-group" style="color: var(--intermediate-color);"></i> Intermediate</li>
-          <li class="sidebar-item" id="menu-advanced" onclick="selectSidebar('advanced')"><i class="fas fa-rocket" style="color: var(--advanced-color);"></i> Advanced</li>
-          
-          <!-- MENU SHORTCUT PENTING -->
+          <li class="sidebar-item active" id="menu-all" onclick="selectSidebar('all')">
+            <span><i class="fas fa-th-large"></i> Semua Kurikulum</span>
+          </li>
+          <li class="sidebar-item" id="menu-basic" onclick="selectSidebar('basic')">
+            <span><i class="fas fa-seedling" style="color: var(--basic-color);"></i> Basic</span>
+            <span class="nav-badge free">FREE</span>
+          </li>
+          <li class="sidebar-item" id="menu-intermediate" onclick="selectSidebar('intermediate')">
+            <span><i class="fas fa-layer-group" style="color: var(--intermediate-color);"></i> Intermediate</span>
+            <span class="nav-badge pro">PRO</span>
+          </li>
+          <li class="sidebar-item" id="menu-advanced" onclick="selectSidebar('advanced')">
+            <span><i class="fas fa-rocket" style="color: var(--advanced-color);"></i> Advanced</span>
+            <span class="nav-badge pro">PRO</span>
+          </li>
           <li class="sidebar-item" id="menu-shortcut" onclick="selectSidebar('shortcut')">
-            <i class="fas fa-keyboard" style="color: var(--shortcut-color);"></i> 100 SHORTCUT PENTING
+            <span><i class="fas fa-keyboard" style="color: var(--shortcut-color);"></i> 100 SHORTCUT</span>
+            <span class="nav-badge hot">HOT</span>
           </li>
 
           <li>
             <a href="https://t.me/namagroupanda" target="_blank" class="sidebar-item telegram-btn is-locked" id="telegramBtn">
-              <i class="fab fa-telegram-plane"></i> Join Group Telegram
+              <span><i class="fab fa-telegram-plane"></i> Join Telegram</span>
             </a>
           </li>
-          <li class="sidebar-item logout-btn" id="logoutBtn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout / Keluar</li>
+          <li class="sidebar-item logout-btn" id="logoutBtn" onclick="handleLogout()">
+            <span><i class="fas fa-sign-out-alt"></i> Logout / Keluar</span>
+          </li>
         </ul>
       </aside>
 
       <!-- KONTEN UTAMA -->
       <div class="main-content-wrapper">
         
-        <!-- BANNER OVERLAY TRANSPARAN DENGAN IKON GEMBOK SANGAT SIMPLE -->
+        <!-- OVERLAY BANNER DENGAN CALL TO ACTION -->
         <div class="lock-overlay-banner" id="lockBanner">
-          <div class="lock-badge">
-            <i class="fas fa-lock" style="color: #10b981;"></i> Silakan Login di Panel Kanan untuk Membuka Akses Full
+          <div class="lock-badge-wrapper">
+            <div class="lock-badge">
+              <i class="fas fa-lock" style="color: #10b981;"></i> Silakan Login untuk Membuka Akses Full 👉
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; background: rgba(255,255,255,0.8); padding: 6px 14px; border-radius: 20px;">
+              Akses 28+ Rumus Excel, 100 Shortcut, & Fitur Cek Jawaban Otomatis!
+            </p>
           </div>
         </div>
 
@@ -271,8 +353,17 @@
           <div class="form-group">
             <label style="font-size: 0.85rem; font-weight: 600;">Password</label>
             <input type="password" id="password" class="form-control" placeholder="Password..." required>
+            <i class="fas fa-eye eye-icon" id="togglePasswordBtn" onclick="togglePasswordVisibility()"></i>
           </div>
+          
+          <div class="remember-demo-box">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+              <input type="checkbox" id="rememberMe"> Ingat Saya
+            </label>
+          </div>
+
           <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login Masuk</button>
+          <button type="button" class="btn-demo" onclick="fillDemoAccount()"><i class="fas fa-magic"></i> Coba Akun Demo</button>
         </form>
       </aside>
 
@@ -282,9 +373,9 @@
   <!-- Modal Detail -->
   <div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;">
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">
         <h3 id="modalTitle">Detail</h3>
-        <button onclick="closeModalBtn()" style="border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+        <button onclick="closeModalBtn()" style="border:none; background:none; cursor:pointer; color:var(--text-main);"><i class="fas fa-times"></i></button>
       </div>
       <div id="modalBody"></div>
     </div>
@@ -451,12 +542,48 @@
 
   window.onload = function() {
     renderView();
+    
+    // Cek Dark Mode preference
+    if (localStorage.getItem('excel_dark_theme') === 'true') {
+      document.body.classList.add('dark-theme');
+      document.getElementById('themeToggle').checked = true;
+    }
+
     if (localStorage.getItem('excel_logged_in') === 'true') {
       applyLoggedInState();
     } else {
       applyLoggedOutState();
     }
   };
+
+  function toggleTheme() {
+    const isDark = document.getElementById('themeToggle').checked;
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('excel_dark_theme', 'true');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('excel_dark_theme', 'false');
+    }
+  }
+
+  function togglePasswordVisibility() {
+    const passInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('togglePasswordBtn');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+      passInput.type = 'password';
+      eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+  }
+
+  function fillDemoAccount() {
+    document.getElementById('username').value = 'excel';
+    document.getElementById('password').value = 'demo1234';
+    showToast("Mengisi akun demo... Klik Login!");
+  }
 
   function applyLoggedInState() {
     document.getElementById('mainContent').classList.remove('is-locked');
