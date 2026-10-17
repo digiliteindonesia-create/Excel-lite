@@ -4,560 +4,95 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ExcelLite - Kurikulum Pembelajaran Microsoft Excel</title>
-  <!-- FontAwesome untuk Icon -->
+  <!-- Icon & Library SheetJS Ringan via CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
     :root {
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
-      
-      --basic-color: #10b981;
-      --basic-bg: #ecfdf5;
-      --intermediate-color: #3b82f6;
-      --intermediate-bg: #eff6ff;
-      --advanced-color: #8b5cf6;
-      --advanced-bg: #f5f3ff;
+      --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border-color: #e2e8f0;
+      --basic-color: #10b981; --basic-bg: #ecfdf5; --intermediate-color: #3b82f6; --intermediate-bg: #eff6ff;
+      --advanced-color: #8b5cf6; --advanced-bg: #f5f3ff;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      line-height: 1.6;
-    }
-
-    /* --- UTAMA (GRID WITH FLOATING LOGIN PANEL) --- */
-    .app-container {
-      padding: 24px;
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-
-    .dashboard-layout {
-      display: grid;
-      grid-template-columns: 240px 1fr 340px;
-      gap: 24px;
-      align-items: start;
-      transition: all 0.3s ease;
-    }
-
-    /* Saat sudah login, tata letak berubah menjadi 2 kolom */
-    .dashboard-layout.is-logged-in {
-      grid-template-columns: 240px 1fr;
-    }
-
-    @media (max-width: 1200px) {
-      .dashboard-layout {
-        grid-template-columns: 220px 1fr 300px;
-      }
-      .dashboard-layout.is-logged-in {
-        grid-template-columns: 220px 1fr;
-      }
-    }
-
-    @media (max-width: 992px) {
-      .dashboard-layout {
-        grid-template-columns: 1fr;
-      }
-      .dashboard-layout.is-logged-in {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* --- SIDEBAR KIRI --- */
-    .sidebar {
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      position: sticky;
-      top: 24px;
-    }
-
-    .sidebar-brand {
-      text-align: center;
-      padding-bottom: 15px;
-      margin-bottom: 15px;
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .sidebar-brand img {
-      width: 160px;
-      height: auto;
-      object-fit: contain;
-    }
-
-    .sidebar-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .sidebar-menu {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .sidebar-item {
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text-main);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.2s ease;
-      background: #f8fafc;
-      text-decoration: none;
-    }
-
-    .sidebar-item:hover {
-      background: #f1f5f9;
-      color: #0f172a;
-      transform: translateX(4px);
-    }
-
-    .sidebar-item.active {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    .sidebar-item.telegram-btn {
-      background: #f0f9ff;
-      color: #0284c7;
-      border: 1px solid #bae6fd;
-      transition: filter 0.3s ease;
-    }
-    .sidebar-item.telegram-btn:hover {
-      background: #e0f2fe;
-      color: #0369a1;
-    }
-
-    /* Efek Buram & Non-Aktif Khusus Tombol Telegram Sebelum Login */
-    .sidebar-item.telegram-btn.is-locked {
-      filter: blur(4px) grayscale(30%);
-      pointer-events: none;
-      user-select: none;
-      opacity: 0.6;
-    }
-
-    .sidebar-item.logout-btn {
-      margin-top: 10px;
-      background: #fef2f2;
-      color: #ef4444;
-      border: 1px solid #fee2e2;
-      display: none; /* Hanya tampil jika sudah login */
-    }
-    .sidebar-item.logout-btn:hover {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .sidebar-item i {
-      width: 20px;
-      text-align: center;
-    }
-
-    /* --- KONTEN UTAMA & EFEK BURAM (BLUR TEASER) --- */
-    .main-content-wrapper {
-      position: relative;
-    }
-
-    .main-content {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      transition: filter 0.3s ease;
-    }
-
-    /* Efek Buram & Non-Aktif Sebelum Login */
-    .main-content.is-locked {
-      filter: blur(6px) grayscale(20%);
-      pointer-events: none;
-      user-select: none;
-    }
-
-    /* Banner Overlay Kunci (Bisa Diklik) */
-    .lock-overlay-banner {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 10;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 150px;
-      background: rgba(248, 250, 252, 0.2);
-    }
-
-    .lock-badge {
-      background: rgba(15, 23, 42, 0.85);
-      color: #ffffff;
-      padding: 14px 28px;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 1rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border: 1px solid rgba(255,255,255,0.2);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-      100% { transform: scale(1); }
-    }
-
-    .header h1 {
-      font-size: 1.8rem;
-      color: #0f172a;
-      margin-bottom: 6px;
-    }
-
-    .header p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-
-    /* Progress Bar */
-    .progress-container {
-      background: #ffffff;
-      padding: 16px 24px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    }
-
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 0.92rem;
-      font-weight: 600;
-    }
-
-    .progress-bar-bg {
-      width: 100%;
-      background: #e2e8f0;
-      height: 12px;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      width: 0%;
-      background: linear-gradient(90deg, #10b981, #3b82f6);
-      height: 100%;
-      transition: width 0.4s ease;
-      border-radius: 6px;
-    }
-
-    /* Kontrol: Filter & Pencarian */
-    .controls-wrapper {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      background: #ffffff;
-      padding: 16px 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-      border: 1px solid var(--border-color);
-    }
-
-    .filter-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: #f8fafc;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tab-btn:hover { background: #f1f5f9; }
-    .tab-btn.active { background: #0f172a; color: #ffffff; border-color: #0f172a; }
-
-    .search-box {
-      position: relative;
-      flex-grow: 1;
-      max-width: 260px;
-    }
-
-    .search-box i {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-    }
-
-    .search-box input {
-      width: 100%;
-      padding: 10px 14px 10px 40px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    /* Grid Kartu */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-      transform-style: preserve-3d;
-      transition: transform 0.15s ease-out, box-shadow 0.2s ease;
-    }
-
-    .card:hover { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); }
-
-    .card.basic { border-top: 5px solid var(--basic-color); background: linear-gradient(to bottom, var(--basic-bg) 0%, #ffffff 120px); }
-    .card.basic .badge { background-color: var(--basic-color); color: #fff; }
-
-    .card.intermediate { border-top: 5px solid var(--intermediate-color); background: linear-gradient(to bottom, var(--intermediate-bg) 0%, #ffffff 120px); }
-    .card.intermediate .badge { background-color: var(--intermediate-color); color: #fff; }
-
-    .card.advanced { border-top: 5px solid var(--advanced-color); background: linear-gradient(to bottom, var(--advanced-bg) 0%, #ffffff 120px); }
-    .card.advanced .badge { background-color: var(--advanced-color); color: #fff; }
-
-    .card.completed { opacity: 0.85; border-color: #cbd5e1; }
-    .card.completed .card-title-group h3 { text-decoration: line-through; color: #64748b; }
-
-    .card-header { padding: 20px 20px 12px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-    .card-title-group h3 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-
-    .card-body { padding: 0 20px 20px 20px; flex-grow: 1; display: flex; flex-direction: column; }
-    .card-desc { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 16px; }
-
-    .syntax-box {
-      background-color: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-family: 'Consolas', monospace;
-      font-size: 0.85rem;
-      color: #0f172a;
-      margin-bottom: 16px;
-      word-break: break-all;
-    }
-    .syntax-box span { font-weight: 600; color: var(--text-muted); display: block; font-size: 0.75rem; margin-bottom: 2px; }
-
-    .complete-wrapper { margin-bottom: 16px; display: flex; align-items: center; }
-    .complete-checkbox { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
-    .complete-checkbox input { width: 16px; height: 16px; accent-color: #10b981; cursor: pointer; }
-
-    .card-footer { display: flex; gap: 10px; margin-top: auto; }
-    .btn { flex: 1; padding: 9px 14px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; text-decoration: none; }
-    .btn-detail { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-    .btn-detail:hover { background-color: #e2e8f0; }
-
-    .card.basic .btn-download { background-color: var(--basic-color); color: white; }
-    .card.intermediate .btn-download { background-color: var(--intermediate-color); color: white; }
-    .card.advanced .btn-download { background-color: var(--advanced-color); color: white; }
-
-    /* --- PANEL LOGIN KANAN (PANEL FLOATING STICKY) --- */
-    .login-right-panel {
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 28px 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      position: sticky;
-      top: 24px;
-      transition: all 0.3s ease;
-    }
-
-    .login-right-panel.hidden {
-      display: none;
-    }
-
-    .login-panel-header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .login-panel-header i {
-      font-size: 2.2rem;
-      color: #10b981;
-      margin-bottom: 10px;
-    }
-
-    .login-panel-header h3 {
-      font-size: 1.25rem;
-      color: #0f172a;
-      font-weight: 700;
-    }
-
-    .login-panel-header p {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-top: 4px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text-main);
-    }
-
-    .input-icon-wrapper {
-      position: relative;
-    }
-
-    .input-icon-wrapper i {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 10px 14px 10px 42px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .form-control:focus {
-      border-color: #3b82f6;
-    }
-
-    .btn-login {
-      width: 100%;
-      padding: 12px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-login:hover {
-      background: #059669;
-    }
-
-    .login-error {
-      color: #ef4444;
-      font-size: 0.82rem;
-      text-align: center;
-      margin-top: 10px;
-      display: none;
-    }
-
-    .login-features-list {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px dashed var(--border-color);
-    }
-
-    .login-features-list h4 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    .login-features-list ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .login-features-list li {
-      font-size: 0.83rem;
-      color: #334155;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .login-features-list li i {
-      color: #10b981;
-      font-size: 0.8rem;
-    }
-
-    /* Modal & Toast */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-    .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-    .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
-    
-    .materi-section h4 { font-size: 1.05rem; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed var(--border-color); }
-    .materi-section.basic h4 { color: var(--basic-color); }
-    .materi-section.intermediate h4 { color: var(--intermediate-color); }
-    .materi-section.advanced h4 { color: var(--advanced-color); }
-    .materi-list { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding-left: 0; }
-    .materi-list li { background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-family: monospace; font-weight: 600; border: 1px solid #e2e8f0; }
-
-    .btn-video-tutorial { display: inline-flex; align-items: center; gap: 8px; background-color: #ef4444; color: white; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; margin-top: 10px; }
-    .btn-video-tutorial:hover { background-color: #dc2626; }
-
-    .toast { position: fixed; bottom: 25px; right: 25px; background: #0f172a; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; z-index: 1100; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+
+    .app-container { padding: 24px; max-width: 1600px; margin: 0 auto; }
+    .dashboard-layout { display: grid; grid-template-columns: 240px 1fr 340px; gap: 24px; align-items: start; transition: all 0.3s ease; }
+    .dashboard-layout.is-logged-in { grid-template-columns: 240px 1fr; }
+
+    @media (max-width: 992px) { .dashboard-layout, .dashboard-layout.is-logged-in { grid-template-columns: 1fr; } }
+
+    /* Sidebar Kiri */
+    .sidebar { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: sticky; top: 24px; }
+    .sidebar-brand { text-align: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); }
+    .sidebar-brand img { width: 160px; height: auto; object-fit: contain; }
+    .sidebar-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+    .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-item { padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; background: #f8fafc; text-decoration: none; }
+    .sidebar-item:hover { background: #f1f5f9; transform: translateX(4px); }
+    .sidebar-item.active { background: #0f172a; color: #ffffff; }
+    .sidebar-item.telegram-btn { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+    .sidebar-item.telegram-btn.is-locked { filter: blur(4px); pointer-events: none; opacity: 0.6; }
+    .sidebar-item.logout-btn { margin-top: 10px; background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; display: none; }
+
+    /* Main Content & Lock Teaser */
+    .main-content-wrapper { position: relative; }
+    .main-content { display: flex; flex-direction: column; gap: 24px; transition: filter 0.3s ease; }
+    .main-content.is-locked { filter: blur(6px) grayscale(20%); pointer-events: none; user-select: none; }
+    .lock-overlay-banner { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; justify-content: center; padding-top: 150px; background: rgba(248,250,252,0.2); }
+    .lock-badge { background: rgba(15,23,42,0.85); color: #fff; padding: 14px 28px; border-radius: 50px; font-weight: 700; backdrop-filter: blur(8px); display: flex; gap: 12px; align-items: center; border: 1px solid rgba(255,255,255,0.2); }
+
+    /* Header & Controls */
+    .progress-container, .controls-wrapper { background: #fff; padding: 16px 24px; border-radius: 12px; border: 1px solid var(--border-color); }
+    .progress-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; font-size: 0.92rem; }
+    .progress-bar-bg { width: 100%; background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; }
+    .progress-bar-fill { width: 0%; background: linear-gradient(90deg, #10b981, #3b82f6); height: 100%; transition: width 0.4s ease; }
+    .controls-wrapper { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: #f8fafc; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+    .tab-btn.active { background: #0f172a; color: #fff; }
+    .search-box { position: relative; flex-grow: 1; max-width: 260px; }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; }
+
+    /* Card Grid & Upload Form */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .card.basic { border-top: 5px solid var(--basic-color); }
+    .card.intermediate { border-top: 5px solid var(--intermediate-color); }
+    .card.advanced { border-top: 5px solid var(--advanced-color); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase; }
+    .card.basic .badge { background: var(--basic-color); }
+    .card.intermediate .badge { background: var(--intermediate-color); }
+    .card.advanced .badge { background: var(--advanced-color); }
+
+    .syntax-box { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin: 12px 0; }
+    .syntax-box span { display: block; font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Tombol Upload & Action */
+    .upload-zone { margin-top: 10px; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; background: #fafafa; }
+    .upload-label { font-size: 0.8rem; font-weight: 600; color: #0284c7; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .file-input { display: none; }
+
+    .card-footer { display: flex; gap: 8px; margin-top: 14px; }
+    .btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; }
+    .btn-detail { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .card.basic .btn-download { background: var(--basic-color); color: #fff; }
+    .card.intermediate .btn-download { background: var(--intermediate-color); color: #fff; }
+    .card.advanced .btn-download { background: var(--advanced-color); color: #fff; }
+
+    /* Panel Login Kanan */
+    .login-right-panel { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 28px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: sticky; top: 24px; }
+    .login-right-panel.hidden { display: none; }
+    .form-group { margin-bottom: 16px; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; }
+    .btn-login { width: 100%; padding: 12px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 25px; right: 25px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 8px; z-index: 1100; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
     .toast.show { transform: translateY(0); opacity: 1; }
-    .no-result { text-align: center; grid-column: 1 / -1; padding: 40px; color: var(--text-muted); display: none; }
   </style>
 </head>
 <body>
@@ -565,66 +100,44 @@
   <div class="app-container">
     <div class="dashboard-layout" id="mainLayout">
       
-      <!-- 1. SIDEBAR KIRI -->
+      <!-- SIDEBAR KIRI -->
       <aside class="sidebar">
         <div class="sidebar-brand">
-          <img src="excellite.jpg" alt="ExcelLite Logo" onerror="this.style.display='none'">
+          <img src="excellite.png" alt="ExcelLite Logo" onerror="this.style.display='none'">
         </div>
         <div class="sidebar-title">Menu Belajar</div>
         <ul class="sidebar-menu">
-          <li class="sidebar-item" id="menu-video" onclick="openExtraMenu('video')">
-            <i class="fas fa-book-open" style="color: #3b82f6;"></i> List Materi Pembelajaran
-          </li>
-          <li class="sidebar-item active" id="menu-all" onclick="selectSidebar('all')">
-            <i class="fas fa-th-large"></i> Semua Kurikulum
-          </li>
-          <li class="sidebar-item" id="menu-basic" onclick="selectSidebar('basic')">
-            <i class="fas fa-seedling" style="color: var(--basic-color);"></i> Basic
-          </li>
-          <li class="sidebar-item" id="menu-intermediate" onclick="selectSidebar('intermediate')">
-            <i class="fas fa-layer-group" style="color: var(--intermediate-color);"></i> Intermediate
-          </li>
-          <li class="sidebar-item" id="menu-advanced" onclick="selectSidebar('advanced')">
-            <i class="fas fa-rocket" style="color: var(--advanced-color);"></i> Advanced
-          </li>
-          <li class="sidebar-item" id="menu-quiz" onclick="openExtraMenu('quiz')">
-            <i class="fas fa-question-circle" style="color: #f59e0b;"></i> Quiz
-          </li>
+          <li class="sidebar-item active" id="menu-all" onclick="selectSidebar('all')"><i class="fas fa-th-large"></i> Semua Kurikulum</li>
+          <li class="sidebar-item" id="menu-basic" onclick="selectSidebar('basic')"><i class="fas fa-seedling" style="color: var(--basic-color);"></i> Basic</li>
+          <li class="sidebar-item" id="menu-intermediate" onclick="selectSidebar('intermediate')"><i class="fas fa-layer-group" style="color: var(--intermediate-color);"></i> Intermediate</li>
+          <li class="sidebar-item" id="menu-advanced" onclick="selectSidebar('advanced')"><i class="fas fa-rocket" style="color: var(--advanced-color);"></i> Advanced</li>
           <li>
             <a href="https://t.me/namagroupanda" target="_blank" class="sidebar-item telegram-btn is-locked" id="telegramBtn">
               <i class="fab fa-telegram-plane"></i> Join Group Telegram
             </a>
           </li>
-          <li class="sidebar-item logout-btn" id="logoutBtn" onclick="handleLogout()">
-            <i class="fas fa-sign-out-alt"></i> Logout / Keluar
-          </li>
+          <li class="sidebar-item logout-btn" id="logoutBtn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout / Keluar</li>
         </ul>
       </aside>
 
-      <!-- 2. KONTEN UTAMA (DI-BURAMKAN SEBELUM LOGIN) -->
+      <!-- KONTEN UTAMA -->
       <div class="main-content-wrapper">
-        
-        <!-- Banner Kunci (Hanya tampil saat locked) -->
         <div class="lock-overlay-banner" id="lockBanner">
-          <div class="lock-badge">
-            <i class="fas fa-lock"></i> Silakan Login di Panel Kanan untuk Membuka Akses Full
-          </div>
+          <div class="lock-badge"><i class="fas fa-lock"></i> Login di Panel Kanan untuk Membuka Akses Full</div>
         </div>
 
         <main class="main-content is-locked" id="mainContent">
           <div class="header">
             <h1>Kurikulum Pembelajaran Microsoft Excel</h1>
-            <p>Daftar lengkap rumus Excel berdasarkan tingkat kesulitan dan modul latihan</p>
+            <p>Daftar lengkap rumus Excel & latihan mandiri terintegrasi</p>
           </div>
 
           <div class="progress-container">
             <div class="progress-info">
-              <span><i class="fas fa-chart-line" style="color: #10b981; margin-right: 6px;"></i> Progress Belajar Anda</span>
+              <span><i class="fas fa-chart-line" style="color: #10b981;"></i> Progress Belajar Anda</span>
               <span id="progressText">0 dari 28 Rumus Selesai (0%)</span>
             </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" id="progressBarFill"></div>
-            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBarFill"></div></div>
           </div>
 
           <div class="controls-wrapper">
@@ -641,353 +154,36 @@
           </div>
 
           <div class="card-grid" id="cardGrid"></div>
-          
-          <div class="no-result" id="noResult">
-            <i class="fas fa-folder-open" style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
-            Rumus yang Anda cari tidak ditemukan.
-          </div>
         </main>
       </div>
 
-      <!-- 3. PANEL LOGIN DI SISI KANAN -->
+      <!-- PANEL LOGIN KANAN -->
       <aside class="login-right-panel" id="loginRightPanel">
-        <div class="login-panel-header">
-          <i class="fas fa-user-lock"></i>
-          <h3>Akses Member ExcelLite</h3>
-          <p>Login untuk mengunduh modul latihan & membuka akses penuh</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <i class="fas fa-user-lock" style="font-size: 2rem; color: #10b981;"></i>
+          <h3 style="margin-top: 8px;">Akses Member ExcelLite</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Login untuk download & koreksi jawaban</p>
         </div>
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form onsubmit="handleLogin(event)">
           <div class="form-group">
-            <label>Username</label>
-            <div class="input-icon-wrapper">
-              <i class="fas fa-user"></i>
-              <input type="text" id="username" class="form-control" placeholder="Masukkan username..." required>
-            </div>
+            <label style="font-size: 0.85rem; font-weight: 600;">Username</label>
+            <input type="text" id="username" class="form-control" placeholder="Username..." required>
           </div>
           <div class="form-group">
-            <label>Password</label>
-            <div class="input-icon-wrapper">
-              <i class="fas fa-lock"></i>
-              <input type="password" id="password" class="form-control" placeholder="Masukkan password..." required>
-            </div>
+            <label style="font-size: 0.85rem; font-weight: 600;">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Password..." required>
           </div>
-          <button type="submit" class="btn-login">
-            <i class="fas fa-sign-in-alt"></i> Login Masuk
-          </button>
-          <div class="login-error" id="loginError">Username atau Password salah!</div>
+          <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login Masuk</button>
         </form>
-
-        <div class="login-features-list">
-          <h4>Keuntungan Member:</h4>
-          <ul>
-            <li><i class="fas fa-check-circle"></i> Akses 28+ Modul Rumus Excel</li>
-            <li><i class="fas fa-check-circle"></i> Download File Latihan (.xlsx)</li>
-            <li><i class="fas fa-check-circle"></i> Tracker Progress Otomatis</li>
-            <li><i class="fas fa-check-circle"></i> Komunitas Telegram Eksklusif</li>
-          </ul>
-        </div>
       </aside>
 
     </div>
   </div>
 
-  <!-- Modal Detail -->
-  <div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 id="modalTitle">Detail Rumus</h3>
-        <button class="modal-close" onclick="closeModalBtn()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
+  <div class="toast" id="toastBox"><i class="fas fa-check-circle" style="color: #10b981;"></i> <span id="toastMsg"></span></div>
 
-  <!-- Toast Notifikasi -->
-  <div class="toast" id="toastBox">
-    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-    <span id="toastMsg">File berhasil diunduh!</span>
-  </div>
-
-<script>
-  window.onload = function() {
-    renderCards(formulasData);
-    const isLoggedIn = localStorage.getItem('excel_logged_in');
-    if (isLoggedIn === 'true') {
-      applyLoggedInState();
-    } else {
-      applyLoggedOutState();
-    }
-  };
-
-  function applyLoggedInState() {
-    document.getElementById('mainContent').classList.remove('is-locked');
-    document.getElementById('lockBanner').style.display = 'none';
-    document.getElementById('telegramBtn').classList.remove('is-locked');
-    document.getElementById('loginRightPanel').classList.add('hidden');
-    document.getElementById('mainLayout').classList.add('is-logged-in');
-    document.getElementById('logoutBtn').style.display = 'flex';
-  }
-
-  function applyLoggedOutState() {
-    document.getElementById('mainContent').classList.add('is-locked');
-    document.getElementById('lockBanner').style.display = 'flex';
-    document.getElementById('telegramBtn').classList.add('is-locked');
-    document.getElementById('loginRightPanel').classList.remove('hidden');
-    document.getElementById('mainLayout').classList.remove('is-logged-in');
-    document.getElementById('logoutBtn').style.display = 'none';
-  }
-
-  function handleLogin(event) {
-    event.preventDefault();
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-
-    if (user.trim() !== "" && pass.trim() !== "") {
-      localStorage.setItem('excel_logged_in', 'true');
-      applyLoggedInState();
-      showToast("Berhasil login! Akses pembelajaran & Telegram terbuka.");
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
-  }
-
-  function handleLogout() {
-    localStorage.removeItem('excel_logged_in');
-    applyLoggedOutState();
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    showToast("Anda telah keluar.");
-  }
-
-  // Data Kurikulum Excel
-  const formulasData = [
-    { id: "sum", name: "SUM", level: "basic", levelText: "Basic", desc: "Menjumlahkan semua angka dalam rentang sel yang dipilih secara otomatis.", syntax: "=SUM(number1, [number2], ...)", example: "Contoh: =SUM(A1:A10)", notes: "Pastikan sel berisi angka.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "average", name: "AVERAGE", level: "basic", levelText: "Basic", desc: "Menghitung nilai rata-rata aritmatika.", syntax: "=AVERAGE(number1, [number2], ...)", example: "Contoh: =AVERAGE(B1:B10)", notes: "Sel kosong diabaikan.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "count", name: "COUNT", level: "basic", levelText: "Basic", desc: "Menghitung jumlah sel berisi angka.", syntax: "=COUNT(value1, [value2], ...)", example: "Contoh: =COUNT(A1:A10)", notes: "Teks diabaikan.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "counta", name: "COUNTA", level: "basic", levelText: "Basic", desc: "Menghitung sel tidak kosong.", syntax: "=COUNTA(value1, [value2], ...)", example: "Contoh: =COUNTA(A1:A10)", notes: "Menghitung semua tipe data.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "max", name: "MAX", level: "basic", levelText: "Basic", desc: "Mencari nilai angka tertinggi.", syntax: "=MAX(number1, [number2], ...)", example: "Contoh: =MAX(C1:C20)", notes: "Nilai max data.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "min", name: "MIN", level: "basic", levelText: "Basic", desc: "Mencari nilai angka terendah.", syntax: "=MIN(number1, [number2], ...)", example: "Contoh: =MIN(C1:C20)", notes: "Nilai min data.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "concat", name: "CONCAT", level: "basic", levelText: "Basic", desc: "Menggabungkan teks beberapa sel.", syntax: "=CONCAT(text1, [text2], ...)", example: "Contoh: =CONCAT(A1, B1)", notes: "Pengganti concatenate.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-
-    { id: "if", name: "IF", level: "intermediate", levelText: "Intermediate", desc: "Pengujian kondisi logika.", syntax: "=IF(logical_test, value_if_true, value_if_false)", example: "Contoh: =IF(A1>75, \"Lulus\", \"Gagal\")", notes: "Bisa digabung nested IF.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "ifs", name: "IFS", level: "intermediate", levelText: "Intermediate", desc: "Menguji banyak kondisi sekaligus.", syntax: "=IFS(condition1, value1, ...)", example: "Contoh: =IFS(A1>90, \"A\", TRUE, \"B\")", notes: "Lebih ringkas.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "iferror", name: "IFERROR", level: "intermediate", levelText: "Intermediate", desc: "Menangani error rumus.", syntax: "=IFERROR(value, value_if_error)", example: "Contoh: =IFERROR(A1/B1, 0)", notes: "Merapikan laporan.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "sumif", name: "SUMIF", level: "intermediate", levelText: "Intermediate", desc: "Menjumlahkan dengan kriteria.", syntax: "=SUMIF(range, criteria, [sum_range])", example: "Contoh: =SUMIF(A:A, \"Jakarta\", B:B)", notes: "Kriteria teks pakai kutip.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "countif", name: "COUNTIF", level: "intermediate", levelText: "Intermediate", desc: "Menghitung sel dengan kriteria.", syntax: "=COUNTIF(range, criteria)", example: "Contoh: =COUNTIF(A:A, \">50\")", notes: "Rekap data.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "vlookup", name: "VLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian data vertikal.", syntax: "=VLOOKUP(lookup_value, table_array, col_index, [range])", example: "Contoh: =VLOOKUP(A2, B:C, 2, FALSE)", notes: "Kolom acuan di kiri.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "hlookup", name: "HLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian data horizontal.", syntax: "=HLOOKUP(lookup_value, table_array, row_index, [range])", example: "Contoh: =HLOOKUP(A1, A:E, 2, FALSE)", notes: "Baris acuan di atas.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "xlookup", name: "XLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian fleksibel modern.", syntax: "=XLOOKUP(lookup_value, lookup_array, return_array)", example: "Contoh: =XLOOKUP(D2, A:A, B:B)", notes: "Pengganti VLOOKUP.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "index-match", name: "INDEX & MATCH", level: "intermediate", levelText: "Intermediate", desc: "Kombinasi pencarian tingkat lanjut.", syntax: "=INDEX(array, MATCH(lookup, array, 0))", example: "Contoh: =INDEX(B:B, MATCH(\"X\", A:A, 0))", notes: "Sangat fleksibel.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "left-right-mid", name: "LEFT / RIGHT / MID", level: "intermediate", levelText: "Intermediate", desc: "Mengekstrak karakter teks.", syntax: "=LEFT(text, [num_chars])", example: "Contoh: =LEFT(\"EXCEL\", 2)", notes: "Potong teks.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "trim", name: "TRIM", level: "intermediate", levelText: "Intermediate", desc: "Menghapus spasi berlebih.", syntax: "=TRIM(text)", example: "Contoh: =TRIM(\"  Budi  \")", notes: "Bersihkan data.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "today-now", name: "TODAY / NOW", level: "intermediate", levelText: "Intermediate", desc: "Menampilkan tanggal & waktu.", syntax: "=TODAY() atau =NOW()", example: "Contoh: =TODAY()", notes: "Otomatis update.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "datedif", name: "DATEDIF", level: "intermediate", levelText: "Intermediate", desc: "Menghitung selisih tanggal.", syntax: "=DATEDIF(start, end, unit)", example: "Contoh: =DATEDIF(A1, B1, \"Y\")", notes: "Fungsi tersembunyi.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "filter", name: "FILTER", level: "intermediate", levelText: "Intermediate", desc: "Menyaring rentang data dinamis.", syntax: "=FILTER(array, include)", example: "Contoh: =FILTER(A:B, B:B=\"Aktif\")", notes: "Spill range.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-
-    { id: "sort", name: "SORT", level: "advanced", levelText: "Advanced", desc: "Mengurutkan data otomatis.", syntax: "=SORT(array, [sort_index], [sort_order])", example: "Contoh: =SORT(A1:B10, 2, -1)", notes: "Dinamis.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "unique", name: "UNIQUE", level: "advanced", levelText: "Advanced", desc: "Ekstrak nilai unik tanpa duplikat.", syntax: "=UNIQUE(array)", example: "Contoh: =UNIQUE(A1:A50)", notes: "List unik.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "calculate", name: "CALCULATE", level: "advanced", levelText: "Advanced", desc: "Evaluasi ekspresi konteks filter.", syntax: "=CALCULATE(expression, filter1)", example: "Contoh: =CALCULATE(SUM(Sales), Region=\"JKT\")", notes: "Power Pivot.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "sumx", name: "SUMX", level: "advanced", levelText: "Advanced", desc: "Jumlah baris ekspresi tabel.", syntax: "=SUMX(table, expression)", example: "Contoh: =SUMX(Sales, Qty * Price)", notes: "DAX Iterator.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "textjoin", name: "TEXTJOIN", level: "advanced", levelText: "Advanced", desc: "Gabung teks dengan pemisah.", syntax: "=TEXTJOIN(delimiter, ignore_empty, text1)", example: "Contoh: =TEXTJOIN(\", \", TRUE, A1:A5)", notes: "Canggih.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "sequence", name: "SEQUENCE", level: "advanced", levelText: "Advanced", desc: "Deret angka berurutan otomatis.", syntax: "=SEQUENCE(rows, [cols], [start])", example: "Contoh: =SEQUENCE(10, 1, 1, 1)", notes: "Nomor otomatis.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" },
-    { id: "lambda", name: "LAMBDA", level: "advanced", levelText: "Advanced", desc: "Fungsi kustom buatan sendiri.", syntax: "=LAMBDA(params, calculation)", example: "Contoh: =LAMBDA(x, x*2)(5)", notes: "Custom function.", driveId: "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" }
-  ];
-
-  let currentFilter = 'all';
-  let completedFormulas = JSON.parse(localStorage.getItem('excel_completed')) || [];
-
-  function renderCards(dataToRender) {
-    const grid = document.getElementById('cardGrid');
-    const noResult = document.getElementById('noResult');
-    grid.innerHTML = '';
-
-    if (dataToRender.length === 0) {
-      noResult.style.display = 'block';
-      return;
-    } else {
-      noResult.style.display = 'none';
-    }
-
-    dataToRender.forEach(item => {
-      const isCompleted = completedFormulas.includes(item.id);
-      const card = document.createElement('div');
-      card.className = `card ${item.level} ${isCompleted ? 'completed' : ''}`;
-      
-      card.innerHTML = `
-        <div class="card-header">
-          <div class="card-title-group"><h3>${item.name}</h3></div>
-          <span class="badge">${item.levelText}</span>
-        </div>
-        <div class="card-body">
-          <p class="card-desc">${item.desc}</p>
-          <div class="syntax-box"><span>Sintaks</span>${item.syntax}</div>
-          <div class="complete-wrapper">
-            <label class="complete-checkbox">
-              <input type="checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleComplete('${item.id}', event)">
-              <span>Tandai Selesai Dipelajari</span>
-            </label>
-          </div>
-          <div class="card-footer">
-            <button class="btn btn-detail" onclick="openDetail('${item.id}')"><i class="fas fa-info-circle"></i> Detail</button>
-            <button class="btn btn-download" onclick="downloadExcel('${item.name}', '${item.driveId}')"><i class="fas fa-download"></i> Download</button>
-          </div>
-        </div>
-      `;
-
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        card.style.transform = `perspective(1000px) rotateX(${-y / 20}deg) rotateY(${x / 20}deg) translateY(-4px)`;
-      });
-
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-      });
-
-      grid.appendChild(card);
-    });
-
-    updateCounters();
-    updateProgress();
-  }
-
-  function selectSidebar(level) {
-    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-    document.getElementById(`menu-${level}`).classList.add('active');
-    currentFilter = level;
-    applyFilterAndSearch(level, document.getElementById('searchInput').value.toLowerCase());
-  }
-
-  function openExtraMenu(type) {
-    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-    document.getElementById(`menu-${type}`).classList.add('active');
-
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-
-    if (type === 'video') {
-      modalTitle.innerText = "List Materi Pembelajaran Excel";
-      modalBody.innerHTML = `
-        <p style="margin-bottom: 16px; color: #475569;">Berikut adalah daftar lengkap materi pembelajaran Microsoft Excel:</p>
-        <div class="materi-section basic">
-          <h4>Level: Basic</h4>
-          <ul class="materi-list"><li>SUM</li><li>AVERAGE</li><li>COUNT</li><li>COUNTA</li><li>MAX</li><li>MIN</li><li>CONCAT</li></ul>
-        </div>
-        <div class="materi-section intermediate" style="margin-top: 16px;">
-          <h4>Level: Intermediate</h4>
-          <ul class="materi-list"><li>IF</li><li>IFS</li><li>IFERROR</li><li>SUMIF</li><li>COUNTIF</li><li>VLOOKUP</li><li>HLOOKUP</li><li>XLOOKUP</li><li>INDEX & MATCH</li><li>LEFT / RIGHT / MID</li><li>TRIM</li><li>TODAY / NOW</li><li>DATEDIF</li><li>FILTER</li></ul>
-        </div>
-        <div class="materi-section advanced" style="margin-top: 16px;">
-          <h4>Level: Advanced</h4>
-          <ul class="materi-list"><li>SORT</li><li>UNIQUE</li><li>CALCULATE</li><li>SUMX</li><li>TEXTJOIN</li><li>SEQUENCE</li><li>LAMBDA</li></ul>
-        </div>
-      `;
-    } else if (type === 'quiz') {
-      modalTitle.innerText = "Quiz & Evaluasi Excel";
-      modalBody.innerHTML = `
-        <p>Uji pemahaman Anda seputar rumus dan fungsi Microsoft Excel melalui latihan soal interaktif.</p>
-        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Fitur kuis interaktif siap menguji skill Anda!</p>
-        <button class="btn btn-download" onclick="closeModalBtn()">Mulai Latihan</button>
-      `;
-    }
-    document.getElementById('detailModal').classList.add('show');
-  }
-
-  function toggleComplete(id, event) {
-    if (event.target.checked) {
-      if (!completedFormulas.includes(id)) completedFormulas.push(id);
-    } else {
-      completedFormulas = completedFormulas.filter(item => item !== id);
-    }
-    localStorage.setItem('excel_completed', JSON.stringify(completedFormulas));
-    applyFilterAndSearch(currentFilter, document.getElementById('searchInput').value.toLowerCase());
-  }
-
-  function updateProgress() {
-    const total = formulasData.length;
-    const completedCount = completedFormulas.length;
-    const percentage = Math.round((completedCount / total) * 100);
-    document.getElementById('progressText').innerText = `${completedCount} dari ${total} Rumus Selesai (${percentage}%)`;
-    document.getElementById('progressBarFill').style.width = `${percentage}%`;
-  }
-
-  function updateCounters() {
-    document.getElementById('count-all').innerText = formulasData.length;
-    document.getElementById('count-basic').innerText = formulasData.filter(f => f.level === 'basic').length;
-    document.getElementById('count-intermediate').innerText = formulasData.filter(f => f.level === 'intermediate').length;
-    document.getElementById('count-advanced').innerText = formulasData.filter(f => f.level === 'advanced').length;
-  }
-
-  function filterLevel(level, event) {
-    currentFilter = level;
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    if(event) event.currentTarget.classList.add('active');
-    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-    if(document.getElementById(`menu-${level}`)) document.getElementById(`menu-${level}`).classList.add('active');
-    applyFilterAndSearch(level, document.getElementById('searchInput').value.toLowerCase());
-  }
-
-  function searchFormulas() {
-    applyFilterAndSearch(currentFilter, document.getElementById('searchInput').value.toLowerCase());
-  }
-
-  function applyFilterAndSearch(level, keyword) {
-    let filtered = formulasData;
-    if (level !== 'all') filtered = filtered.filter(f => f.level === level);
-    if (keyword.trim() !== '') {
-      filtered = filtered.filter(f => f.name.toLowerCase().includes(keyword) || f.desc.toLowerCase().includes(keyword));
-    }
-    renderCards(filtered);
-  }
-
-  function downloadExcel(formulaName, driveId) {
-    if (driveId === "MASUKKAN_ID_GOOGLE_DRIVE_ANDA_DISINI" || !driveId) {
-      showToast(`ID Google Drive untuk ${formulaName} belum diatur!`);
-      return;
-    }
-    const link = document.createElement('a');
-    link.href = `https://drive.google.com/uc?export=download&id=${driveId}`;
-    link.setAttribute('target', '_blank');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast(`Mengunduh file Excel untuk rumus ${formulaName}...`);
-  }
-
-  function openDetail(id) {
-    const item = formulasData.find(f => f.id === id);
-    if (!item) return;
-    const ytUrl = `https://www.youtube.com/results?search_query=tutorial+rumus+excel+${encodeURIComponent(item.name)}`;
-
-    document.getElementById('modalTitle').innerText = `Panduan Rumus: ${item.name}`;
-    document.getElementById('modalBody').innerHTML = `
-      <p><strong>Deskripsi Lengkap:</strong> ${item.desc}</p>
-      <p><strong>Sintaks Baku:</strong></p>
-      <div style="background:#f1f5f9; padding:8px 12px; border-radius:6px; font-family:monospace; margin-bottom:12px;">${item.syntax}</div>
-      <p><strong>Studi Kasus / Contoh:</strong> ${item.example}</p>
-      <p><strong>Catatan Penting:</strong> ${item.notes}</p>
-      <hr style="border:0; border-top:1px solid #e2e8f0; margin: 16px 0;">
-      <a href="${ytUrl}" target="_blank" class="btn-video-tutorial"><i class="fab fa-youtube"></i> Tonton Video Tutorial (${item.name})</a>
-    `;
-    document.getElementById('detailModal').classList.add('show');
-  }
-
-  function closeModal(event) {
-    if (event.target.id === 'detailModal') document.getElementById('detailModal').classList.remove('show');
-  }
-
-  function closeModalBtn() {
-    document.getElementById('detailModal').classList.remove('show');
-  }
-
-  function showToast(message) {
-    const toast = document.getElementById('toastBox');
-    document.getElementById('toastMsg').innerText = message;
-    toast.classList.add('show');
-    setTimeout(() => { toast.classList.remove('show'); }, 3000);
-  }
-</script>
-
+  <!-- Memanggil Script Eksternal -->
+  <script src="formulas.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
