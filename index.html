@@ -3,17 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ExcelLite - Kurikulum Pembelajaran Microsoft Excel</title>
-  <!-- Icon & Library SheetJS Ringan via CDN -->
+  <title>ExcelLite - Kurikulum & Cek Jawaban Excel</title>
+  <!-- Icon & Library SheetJS untuk Cek Jawaban Excel -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     :root {
-      --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border-color: #e2e8f0;
-      --basic-color: #10b981; --basic-bg: #ecfdf5; --intermediate-color: #3b82f6; --intermediate-bg: #eff6ff;
-      --advanced-color: #8b5cf6; --advanced-bg: #f5f3ff;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --basic-color: #10b981;
+      --basic-bg: #ecfdf5;
+      --intermediate-color: #3b82f6;
+      --intermediate-bg: #eff6ff;
+      --advanced-color: #8b5cf6;
+      --advanced-bg: #f5f3ff;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
 
@@ -21,7 +31,13 @@
     .dashboard-layout { display: grid; grid-template-columns: 240px 1fr 340px; gap: 24px; align-items: start; transition: all 0.3s ease; }
     .dashboard-layout.is-logged-in { grid-template-columns: 240px 1fr; }
 
-    @media (max-width: 992px) { .dashboard-layout, .dashboard-layout.is-logged-in { grid-template-columns: 1fr; } }
+    @media (max-width: 1200px) {
+      .dashboard-layout { grid-template-columns: 220px 1fr 300px; }
+      .dashboard-layout.is-logged-in { grid-template-columns: 220px 1fr; }
+    }
+    @media (max-width: 992px) {
+      .dashboard-layout, .dashboard-layout.is-logged-in { grid-template-columns: 1fr; }
+    }
 
     /* Sidebar Kiri */
     .sidebar { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: sticky; top: 24px; }
@@ -56,27 +72,52 @@
     .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
     .search-box input { width: 100%; padding: 10px 14px 10px 40px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; }
 
-    /* Card Grid & Upload Form */
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
+    /* Card Grid */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
     .card { background: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
-    .card.basic { border-top: 5px solid var(--basic-color); }
-    .card.intermediate { border-top: 5px solid var(--intermediate-color); }
-    .card.advanced { border-top: 5px solid var(--advanced-color); }
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .card.basic { border-top: 5px solid var(--basic-color); background: linear-gradient(to bottom, var(--basic-bg) 0%, #ffffff 120px); }
+    .card.intermediate { border-top: 5px solid var(--intermediate-color); background: linear-gradient(to bottom, var(--intermediate-bg) 0%, #ffffff 120px); }
+    .card.advanced { border-top: 5px solid var(--advanced-color); background: linear-gradient(to bottom, var(--advanced-bg) 0%, #ffffff 120px); }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .card-title-group h3 { font-size: 1.25rem; font-weight: 700; }
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase; }
     .card.basic .badge { background: var(--basic-color); }
     .card.intermediate .badge { background: var(--intermediate-color); }
     .card.advanced .badge { background: var(--advanced-color); }
 
     .syntax-box { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin: 12px 0; }
-    .syntax-box span { display: block; font-size: 0.75rem; color: var(--text-muted); }
+    .syntax-box span { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 
-    /* Tombol Upload & Action */
-    .upload-zone { margin-top: 10px; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; background: #fafafa; }
-    .upload-label { font-size: 0.8rem; font-weight: 600; color: #0284c7; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    /* AREA UPLOAD & CEK JAWABAN EXCEL */
+    .upload-box {
+      margin: 10px 0;
+      padding: 10px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .upload-box:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .upload-btn-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0284c7;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
     .file-input { display: none; }
 
-    .card-footer { display: flex; gap: 8px; margin-top: 14px; }
+    .complete-checkbox { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; margin-bottom: 10px; }
+    .complete-checkbox input { width: 16px; height: 16px; accent-color: #10b981; }
+
+    .card-footer { display: flex; gap: 8px; margin-top: auto; }
     .btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; }
     .btn-detail { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
     .card.basic .btn-download { background: var(--basic-color); color: #fff; }
@@ -90,7 +131,11 @@
     .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; }
     .btn-login { width: 100%; padding: 12px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
-    /* Toast */
+    /* Modal & Toast */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { background: white; width: 90%; max-width: 600px; border-radius: 12px; padding: 24px; }
+    
     .toast { position: fixed; bottom: 25px; right: 25px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 8px; z-index: 1100; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
     .toast.show { transform: translateY(0); opacity: 1; }
   </style>
@@ -123,7 +168,7 @@
       <!-- KONTEN UTAMA -->
       <div class="main-content-wrapper">
         <div class="lock-overlay-banner" id="lockBanner">
-          <div class="lock-badge"><i class="fas fa-lock"></i> Login di Panel Kanan untuk Membuka Akses Full</div>
+          <div class="lock-badge"><i class="fas fa-lock"></i> Silakan Login di Panel Kanan untuk Membuka Akses Full</div>
         </div>
 
         <main class="main-content is-locked" id="mainContent">
@@ -180,10 +225,252 @@
     </div>
   </div>
 
-  <div class="toast" id="toastBox"><i class="fas fa-check-circle" style="color: #10b981;"></i> <span id="toastMsg"></span></div>
+  <!-- Modal Detail -->
+  <div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;">
+        <h3 id="modalTitle">Detail Rumus</h3>
+        <button onclick="closeModalBtn()" style="border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
-  <!-- Memanggil Script Eksternal -->
-  <script src="formulas.js"></script>
-  <script src="script.js"></script>
+  <div class="toast" id="toastBox"><i class="fas fa-info-circle" style="color: #10b981;"></i> <span id="toastMsg"></span></div>
+
+<script>
+  // Data 28+ Rumus Excel Beserta Kunci Sel Jawaban
+  const formulasData = [
+    { id: "sum", name: "SUM", level: "basic", levelText: "Basic", desc: "Menjumlahkan semua angka dalam rentang sel yang dipilih secara otomatis.", syntax: "=SUM(number1, [number2], ...)", example: "Contoh: =SUM(A1:A10)", notes: "Pastikan sel berisi angka.", driveId: "", expectedCell: "B5", expectedValue: 150 },
+    { id: "average", name: "AVERAGE", level: "basic", levelText: "Basic", desc: "Menghitung nilai rata-rata aritmatika.", syntax: "=AVERAGE(number1, [number2], ...)", example: "Contoh: =AVERAGE(B1:B10)", notes: "Sel kosong diabaikan.", driveId: "", expectedCell: "B5", expectedValue: 75 },
+    { id: "count", name: "COUNT", level: "basic", levelText: "Basic", desc: "Menghitung jumlah sel berisi angka.", syntax: "=COUNT(value1, [value2], ...)", example: "Contoh: =COUNT(A1:A10)", notes: "Teks diabaikan.", driveId: "", expectedCell: "B5", expectedValue: 10 },
+    { id: "counta", name: "COUNTA", level: "basic", levelText: "Basic", desc: "Menghitung sel tidak kosong.", syntax: "=COUNTA(value1, [value2], ...)", example: "Contoh: =COUNTA(A1:A10)", notes: "Menghitung semua tipe data.", driveId: "", expectedCell: "B5", expectedValue: 12 },
+    { id: "max", name: "MAX", level: "basic", levelText: "Basic", desc: "Mencari nilai angka tertinggi.", syntax: "=MAX(number1, [number2], ...)", example: "Contoh: =MAX(C1:C20)", notes: "Nilai max data.", driveId: "", expectedCell: "B5", expectedValue: 99 },
+    { id: "min", name: "MIN", level: "basic", levelText: "Basic", desc: "Mencari nilai angka terendah.", syntax: "=MIN(number1, [number2], ...)", example: "Contoh: =MIN(C1:C20)", notes: "Nilai min data.", driveId: "", expectedCell: "B5", expectedValue: 10 },
+    { id: "concat", name: "CONCAT", level: "basic", levelText: "Basic", desc: "Menggabungkan teks beberapa sel.", syntax: "=CONCAT(text1, [text2], ...)", example: "Contoh: =CONCAT(A1, B1)", notes: "Pengganti concatenate.", driveId: "", expectedCell: "B5", expectedValue: "ExcelLite" },
+
+    { id: "if", name: "IF", level: "intermediate", levelText: "Intermediate", desc: "Pengujian kondisi logika.", syntax: "=IF(logical_test, value_if_true, value_if_false)", example: "Contoh: =IF(A1>75, \"Lulus\", \"Gagal\")", notes: "Bisa digabung nested IF.", driveId: "", expectedCell: "B5", expectedValue: "Lulus" },
+    { id: "ifs", name: "IFS", level: "intermediate", levelText: "Intermediate", desc: "Menguji banyak kondisi sekaligus.", syntax: "=IFS(condition1, value1, ...)", example: "Contoh: =IFS(A1>90, \"A\", TRUE, \"B\")", notes: "Lebih ringkas.", driveId: "", expectedCell: "B5", expectedValue: "A" },
+    { id: "iferror", name: "IFERROR", level: "intermediate", levelText: "Intermediate", desc: "Menangani error rumus.", syntax: "=IFERROR(value, value_if_error)", example: "Contoh: =IFERROR(A1/B1, 0)", notes: "Merapikan laporan.", driveId: "", expectedCell: "B5", expectedValue: 0 },
+    { id: "sumif", name: "SUMIF", level: "intermediate", levelText: "Intermediate", desc: "Menjumlahkan dengan kriteria.", syntax: "=SUMIF(range, criteria, [sum_range])", example: "Contoh: =SUMIF(A:A, \"Jakarta\", B:B)", notes: "Kriteria teks pakai kutip.", driveId: "", expectedCell: "B5", expectedValue: 500 },
+    { id: "countif", name: "COUNTIF", level: "intermediate", levelText: "Intermediate", desc: "Menghitung sel dengan kriteria.", syntax: "=COUNTIF(range, criteria)", example: "Contoh: =COUNTIF(A:A, \">50\")", notes: "Rekap data.", driveId: "", expectedCell: "B5", expectedValue: 5 },
+    { id: "vlookup", name: "VLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian data vertikal.", syntax: "=VLOOKUP(lookup_value, table_array, col_index, [range])", example: "Contoh: =VLOOKUP(A2, B:C, 2, FALSE)", notes: "Kolom acuan di kiri.", driveId: "", expectedCell: "B5", expectedValue: "Produk A" },
+    { id: "hlookup", name: "HLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian data horizontal.", syntax: "=HLOOKUP(lookup_value, table_array, row_index, [range])", example: "Contoh: =HLOOKUP(A1, A:E, 2, FALSE)", notes: "Baris acuan di atas.", driveId: "", expectedCell: "B5", expectedValue: "Kategori B" },
+    { id: "xlookup", name: "XLOOKUP", level: "intermediate", levelText: "Intermediate", desc: "Pencarian fleksibel modern.", syntax: "=XLOOKUP(lookup_value, lookup_array, return_array)", example: "Contoh: =XLOOKUP(D2, A:A, B:B)", notes: "Pengganti VLOOKUP.", driveId: "", expectedCell: "B5", expectedValue: "Data Ditemukan" },
+    { id: "index-match", name: "INDEX & MATCH", level: "intermediate", levelText: "Intermediate", desc: "Kombinasi pencarian tingkat lanjut.", syntax: "=INDEX(array, MATCH(lookup, array, 0))", example: "Contoh: =INDEX(B:B, MATCH(\"X\", A:A, 0))", notes: "Sangat fleksibel.", driveId: "", expectedCell: "B5", expectedValue: "Hasil Match" },
+    { id: "left-right-mid", name: "LEFT / RIGHT / MID", level: "intermediate", levelText: "Intermediate", desc: "Mengekstrak karakter teks.", syntax: "=LEFT(text, [num_chars])", example: "Contoh: =LEFT(\"EXCEL\", 2)", notes: "Potong teks.", driveId: "", expectedCell: "B5", expectedValue: "EX" },
+    { id: "trim", name: "TRIM", level: "intermediate", levelText: "Intermediate", desc: "Menghapus spasi berlebih.", syntax: "=TRIM(text)", example: "Contoh: =TRIM(\"  Budi  \")", notes: "Bersihkan data.", driveId: "", expectedCell: "B5", expectedValue: "Budi" },
+    { id: "today-now", name: "TODAY / NOW", level: "intermediate", levelText: "Intermediate", desc: "Menampilkan tanggal & waktu.", syntax: "=TODAY() atau =NOW()", example: "Contoh: =TODAY()", notes: "Otomatis update.", driveId: "", expectedCell: "B5", expectedValue: "2026-10-17" },
+    { id: "datedif", name: "DATEDIF", level: "intermediate", levelText: "Intermediate", desc: "Menghitung selisih tanggal.", syntax: "=DATEDIF(start, end, unit)", example: "Contoh: =DATEDIF(A1, B1, \"Y\")", notes: "Fungsi tersembunyi.", driveId: "", expectedCell: "B5", expectedValue: 5 },
+    { id: "filter", name: "FILTER", level: "intermediate", levelText: "Intermediate", desc: "Menyaring rentang data dinamis.", syntax: "=FILTER(array, include)", example: "Contoh: =FILTER(A:B, B:B=\"Aktif\")", notes: "Spill range.", driveId: "", expectedCell: "B5", expectedValue: "Aktif" },
+
+    { id: "sort", name: "SORT", level: "advanced", levelText: "Advanced", desc: "Mengurutkan data otomatis.", syntax: "=SORT(array, [sort_index], [sort_order])", example: "Contoh: =SORT(A1:B10, 2, -1)", notes: "Dinamis.", driveId: "", expectedCell: "B5", expectedValue: "A-Z" },
+    { id: "unique", name: "UNIQUE", level: "advanced", levelText: "Advanced", desc: "Ekstrak nilai unik tanpa duplikat.", syntax: "=UNIQUE(array)", example: "Contoh: =UNIQUE(A1:A50)", notes: "List unik.", driveId: "", expectedCell: "B5", expectedValue: "Unik 1" },
+    { id: "calculate", name: "CALCULATE", level: "advanced", levelText: "Advanced", desc: "Evaluasi ekspresi konteks filter.", syntax: "=CALCULATE(expression, filter1)", example: "Contoh: =CALCULATE(SUM(Sales), Region=\"JKT\")", notes: "Power Pivot.", driveId: "", expectedCell: "B5", expectedValue: 1000 },
+    { id: "sumx", name: "SUMX", level: "advanced", levelText: "Advanced", desc: "Jumlah baris ekspresi tabel.", syntax: "=SUMX(table, expression)", example: "Contoh: =SUMX(Sales, Qty * Price)", notes: "DAX Iterator.", driveId: "", expectedCell: "B5", expectedValue: 5000 },
+    { id: "textjoin", name: "TEXTJOIN", level: "advanced", levelText: "Advanced", desc: "Gabung teks dengan pemisah.", syntax: "=TEXTJOIN(delimiter, ignore_empty, text1)", example: "Contoh: =TEXTJOIN(\", \", TRUE, A1:A5)", notes: "Canggih.", driveId: "", expectedCell: "B5", expectedValue: "A, B, C" },
+    { id: "sequence", name: "SEQUENCE", level: "advanced", levelText: "Advanced", desc: "Deret angka berurutan otomatis.", syntax: "=SEQUENCE(rows, [cols], [start])", example: "Contoh: =SEQUENCE(10, 1, 1, 1)", notes: "Nomor otomatis.", driveId: "", expectedCell: "B5", expectedValue: 10 },
+    { id: "lambda", name: "LAMBDA", level: "advanced", levelText: "Advanced", desc: "Fungsi kustom buatan sendiri.", syntax: "=LAMBDA(params, calculation)", example: "Contoh: =LAMBDA(x, x*2)(5)", notes: "Custom function.", driveId: "", expectedCell: "B5", expectedValue: 10 }
+  ];
+
+  let currentFilter = 'all';
+  let completedFormulas = JSON.parse(localStorage.getItem('excel_completed')) || [];
+
+  window.onload = function() {
+    renderCards(formulasData);
+    if (localStorage.getItem('excel_logged_in') === 'true') {
+      applyLoggedInState();
+    } else {
+      applyLoggedOutState();
+    }
+  };
+
+  function applyLoggedInState() {
+    document.getElementById('mainContent').classList.remove('is-locked');
+    document.getElementById('lockBanner').style.display = 'none';
+    document.getElementById('telegramBtn').classList.remove('is-locked');
+    document.getElementById('loginRightPanel').classList.add('hidden');
+    document.getElementById('mainLayout').classList.add('is-logged-in');
+    document.getElementById('logoutBtn').style.display = 'flex';
+  }
+
+  function applyLoggedOutState() {
+    document.getElementById('mainContent').classList.add('is-locked');
+    document.getElementById('lockBanner').style.display = 'flex';
+    document.getElementById('telegramBtn').classList.add('is-locked');
+    document.getElementById('loginRightPanel').classList.remove('hidden');
+    document.getElementById('mainLayout').classList.remove('is-logged-in');
+    document.getElementById('logoutBtn').style.display = 'none';
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    localStorage.setItem('excel_logged_in', 'true');
+    applyLoggedInState();
+    showToast("Berhasil login! Akses pembelajaran terbuka.");
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('excel_logged_in');
+    applyLoggedOutState();
+    showToast("Anda telah keluar.");
+  }
+
+  function renderCards(data) {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+
+    data.forEach(item => {
+      const isDone = completedFormulas.includes(item.id);
+      const card = document.createElement('div');
+      card.className = `card ${item.level}`;
+      
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="card-title-group"><h3>${item.name}</h3></div>
+          <span class="badge">${item.levelText}</span>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">${item.desc}</p>
+        <div class="syntax-box"><span>Sintaks</span>${item.syntax}</div>
+        
+        <!-- TOMBOL UPLOAD & CEK JAWABAN -->
+        <div class="upload-box">
+          <label class="upload-btn-label" for="upload-${item.id}">
+            <i class="fas fa-file-excel" style="color: #10b981;"></i> 
+            ${isDone ? 'Jawaban Benar ✅ (Upload Ulang)' : 'Upload & Cek Jawaban (.xlsx)'}
+          </label>
+          <input type="file" id="upload-${item.id}" class="file-input" accept=".xlsx, .xls" onchange="checkAnswer('${item.id}', event)">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label class="complete-checkbox">
+            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleComplete('${item.id}', event)">
+            <span>Tandai Selesai Dipelajari</span>
+          </label>
+        </div>
+
+        <div class="card-footer">
+          <button class="btn btn-detail" onclick="openDetail('${item.id}')"><i class="fas fa-info-circle"></i> Detail</button>
+          <button class="btn btn-download" onclick="downloadExcel('${item.name}')"><i class="fas fa-download"></i> Download</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    updateCounters();
+    updateProgress();
+  }
+
+  // LOGIKA PENGECEKAN JAWABAN EXCEL OTOMATIS (SheetJS)
+  function checkAnswer(id, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const item = formulasData.find(f => f.id === id);
+    if (!item) return;
+
+    showToast(`Mengecek file ${file.name}...`);
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        // Ambil isi sel jawaban
+        const cell = firstSheet[item.expectedCell];
+        const userValue = cell ? cell.v : null;
+
+        if (userValue == item.expectedValue) {
+          showToast(`🎉 Selamat! Jawaban ${item.name} BENAR!`);
+          if (!completedFormulas.includes(id)) {
+            completedFormulas.push(id);
+            localStorage.setItem('excel_completed', JSON.stringify(completedFormulas));
+            renderCards(formulasData);
+          }
+        } else {
+          showToast(`❌ Jawaban ${item.name} SALAH. Nilai ditemukan di ${item.expectedCell}: ${userValue || 'Kosong'}`);
+        }
+      } catch (err) {
+        showToast("Error membaca file Excel. Pastikan format file .xlsx valid.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function toggleComplete(id, event) {
+    if (event.target.checked) {
+      if (!completedFormulas.includes(id)) completedFormulas.push(id);
+    } else {
+      completedFormulas = completedFormulas.filter(item => item !== id);
+    }
+    localStorage.setItem('excel_completed', JSON.stringify(completedFormulas));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = formulasData.length;
+    const done = completedFormulas.length;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progressText').innerText = `${done} dari ${total} Selesai (${pct}%)`;
+    document.getElementById('progressBarFill').style.width = `${pct}%`;
+  }
+
+  function updateCounters() {
+    document.getElementById('count-all').innerText = formulasData.length;
+    document.getElementById('count-basic').innerText = formulasData.filter(f => f.level === 'basic').length;
+    document.getElementById('count-intermediate').innerText = formulasData.filter(f => f.level === 'intermediate').length;
+    document.getElementById('count-advanced').innerText = formulasData.filter(f => f.level === 'advanced').length;
+  }
+
+  function filterLevel(lvl, e) {
+    currentFilter = lvl;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if (e) e.currentTarget.classList.add('active');
+    const filtered = lvl === 'all' ? formulasData : formulasData.filter(f => f.level === lvl);
+    renderCards(filtered);
+  }
+
+  function searchFormulas() {
+    const kw = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = formulasData.filter(f => f.name.toLowerCase().includes(kw) || f.desc.toLowerCase().includes(kw));
+    renderCards(filtered);
+  }
+
+  function selectSidebar(lvl) {
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`menu-${lvl}`).classList.add('active');
+    filterLevel(lvl);
+  }
+
+  function downloadExcel(name) {
+    showToast(`Mengunduh file latihan Excel untuk ${name}...`);
+  }
+
+  function openDetail(id) {
+    const item = formulasData.find(f => f.id === id);
+    if (!item) return;
+    document.getElementById('modalTitle').innerText = `Detail Rumus: ${item.name}`;
+    document.getElementById('modalBody').innerHTML = `
+      <p><strong>Deskripsi:</strong> ${item.desc}</p>
+      <p style="margin-top:8px;"><strong>Sintaks:</strong> <code>${item.syntax}</code></p>
+      <p style="margin-top:8px;"><strong>Contoh:</strong> ${item.example}</p>
+      <p style="margin-top:8px;"><strong>Sel Kunci Jawaban:</strong> Hasil harus di sel <b>${item.expectedCell}</b></p>
+    `;
+    document.getElementById('detailModal').classList.add('show');
+  }
+
+  function closeModalBtn() { document.getElementById('detailModal').classList.remove('show'); }
+  function closeModal(e) { if(e.target.id==='detailModal') closeModalBtn(); }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toastBox');
+    document.getElementById('toastMsg').innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+</script>
+
 </body>
 </html>
